@@ -1,5 +1,5 @@
-def ode_model(t, p, q, a, b, p0, c, dqdt):
-    ''' Return the derivative dx/dt at time, t, for given parameters.
+def pressure_ode(t, p, q, a, b, p0, c, dqdt):
+    ''' Return the derivative dp/dt at time, t, for given parameters.
 
         Parameters:
         -----------
@@ -18,7 +18,7 @@ def ode_model(t, p, q, a, b, p0, c, dqdt):
         c :
             Slow-drainage parameter.
         dqdt :
-            slow-drainage rate.
+            Rate of change of source/sink rate.
 
         Returns:
         --------
@@ -31,9 +31,8 @@ def ode_model(t, p, q, a, b, p0, c, dqdt):
 
         Examples:
         ---------
-        *add this*
-        >>> ode_model()
-        some number
+        >>> ode_model(0, 1, 2, 3, 4, 5, 6, 0)
+        10
 
     '''
 
