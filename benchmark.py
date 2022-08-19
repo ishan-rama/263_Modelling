@@ -181,7 +181,7 @@ def plot_benchmark():
 
     x_at_ten = []
 
-    step_size = np.arange(0.1, 3, 0.1)
+    step_size = np.arange(0.1, 2.1, 0.1)
     inverse_step_size = 1/step_size
 
     for step in step_size:
