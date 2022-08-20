@@ -122,11 +122,14 @@ def solve_pressure_ode(f, t0, t1, dt, p0, pars):
     t_range = np.arange(t0, t1 + dt, dt)
 
     q = interpolate_mass_extraction(t_range)
-    dqdt = 0
+    dqdt = q
+
+    for i in range(len(q)-1):
+        dqdt[i] = (q[i+1] - q[i])/dt
 
     for index, tk in enumerate(t_range[:-1]):
         pressure_values.append(
-            step_rk4(f, tk, pressure_values[index], dt, [p0, q[index]] + pars + [dqdt]))
+            step_rk4(f, tk, pressure_values[index], dt, [p0, q[index]] + pars + [dqdt[index]]))
 
     return t_range, np.array(pressure_values)
 
@@ -177,14 +180,15 @@ def plot_pressure_model():
     dt = 1
     a = 5.1e-4
     b = 0.65e-3
-    c = 0  # assuming c is zero
+    c = 0.01
     pars = [a, b, c]
 
     t_data, p_data = load_pressure_data()
+    plt.plot(t_data, p_data, "x", color="red", label="numerical solution")
 
     t, p = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, pars)
     plt.plot(t, p, "-", color="blue", label="numerical solution")
-    plt.plot(t_data, p_data, "x", color="red", label="numerical solution")
+
 
     def Tmodel(t, *pars):
         t0 = 1953
@@ -199,16 +203,15 @@ def plot_pressure_model():
     constants = curve_fit(Tmodel, t_data, p_data, theta0)
     a_const = constants[0][0]
     b_const = constants[0][1]
-    print(a_const)
-    print(b_const)
-    pars = [a_const, b_const, c]
+    c_const = constants[0][2]
+    pars = [a_const, b_const, c_const]
 
     t, p = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, pars)
     plt.plot(t, p, "-", color="green", label="improved solution")
-    plt.plot(t_data, p_data, "x", color="red", label="numerical solution")
 
     plt.xlabel('Time [yr]')
     plt.ylabel('Pressure [bar]')
+    plt.legend()
     plt.show()
 
 if __name__ == "__main__":
