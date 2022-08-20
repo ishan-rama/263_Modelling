@@ -180,7 +180,7 @@ def plot_pressure_model():
     dt = 1
     a = 5.1e-4
     b = 0.65e-3
-    c = 0.01
+    c = 0.015
     pars = [a, b, c]
 
     t_data, p_data = load_pressure_data()
@@ -204,6 +204,9 @@ def plot_pressure_model():
     a_const = constants[0][0]
     b_const = constants[0][1]
     c_const = constants[0][2]
+
+    print(f'a = {a_const}, b = {b_const}, c = {c_const}')
+
     pars = [a_const, b_const, c_const]
 
     t, p = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, pars)
@@ -211,8 +214,14 @@ def plot_pressure_model():
 
     plt.xlabel('Time [yr]')
     plt.ylabel('Pressure [bar]')
+    plt.title('Model Plot')
     plt.legend()
-    plt.show()
+
+    save_figure = 1
+    if not save_figure:
+        plt.show()
+    else:
+        plt.savefig('model_plot', dpi=300)
 
 if __name__ == "__main__":
     plot_pressure_model()
