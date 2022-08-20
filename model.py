@@ -225,7 +225,7 @@ def plot_pressure_model():
         tm,Tm = solve_ode_pressure(ode_model, t, x0, pars)
         return Tm
 
-    p0=[5.1e-4,0.65e-3]
+    p0=[0.015696,0.15696]
     constants=curve_fit(Tmodel,Time, Pressure, p0)
 
     a_const=constants[0][0]
