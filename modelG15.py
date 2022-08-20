@@ -122,6 +122,23 @@ def solve_pressure_ode(f, t0, t1, dt, p0, pars):
 
     return t_range, np.array(pressure_values)
 
+def load_pressure_data():
+    ''' Returns time and temperature measurements from kettle experiment.
+        Parameters:
+        -----------
+        none
+        Returns:
+        --------
+        t : array-like
+            Vector of times (seconds) at which measurements were taken.
+        T : array-like
+            Vector of mass extraction measurements.
+    '''
+    # File I/O commands to read in the data
+    Time, Pressure = np.genfromtxt('sb_pres.txt', delimiter=',', skip_header=1).T
+
+    return Time, Pressure
+
 def interpolate_mass_extraction(t):
     ''' Return heat source parameter q for kettle experiment.
         Parameters:
@@ -143,3 +160,4 @@ def interpolate_mass_extraction(t):
     return np.interp(t, Time, Mass)
 
 if __name__ == "__main__":
+    q = interpolate_mass_extraction(t)
