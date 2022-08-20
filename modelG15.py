@@ -1,6 +1,9 @@
 import numpy as np
+from matplotlib import pyplot as plt
+from scipy.optimize import curve_fit
 
-def pressure_ode(t, p, q, a, b, p0, c, dqdt):
+
+def pressure_ode(t, p, p0, q, a, b, c, dqdt):
     ''' Return the derivative dp/dt at time, t, for given parameters.
 
         Parameters:
@@ -40,6 +43,7 @@ def pressure_ode(t, p, q, a, b, p0, c, dqdt):
 
     return -a * q - b * (p - p0) - c * dqdt
 
+
 def step_rk4(f, tk, yk, h, args=None):
     """
     Perform one step of the Classic RK4 method
@@ -71,11 +75,12 @@ def step_rk4(f, tk, yk, h, args=None):
         args = []
 
     f0 = f(tk, yk, *args)
-    f1 = f(tk + h/2, yk + (h*f0)/2, *args)
-    f2 = f(tk + h/2, yk + (h*f1)/2, *args)
-    f3 = f(tk + h, yk + h*f2, *args)
+    f1 = f(tk + h / 2, yk + (h * f0) / 2, *args)
+    f2 = f(tk + h / 2, yk + (h * f1) / 2, *args)
+    f3 = f(tk + h, yk + h * f2, *args)
 
-    return yk + h*((f0+2*f1+2*f2+f3)/6)
+    return yk + h * ((f0 + 2 * f1 + 2 * f2 + f3) / 6)
+
 
 def solve_pressure_ode(f, t0, t1, dt, p0, pars):
     ''' Solve an ODE numerically.
@@ -112,15 +117,19 @@ def solve_pressure_ode(f, t0, t1, dt, p0, pars):
             3. forcing term, q
             4. all other parameters
     '''
-    #Return arrays
+    # Return arrays
     pressure_values = [p0]
-    t_range = np.arange(t0, t1+dt, dt)
+    t_range = np.arange(t0, t1 + dt, dt)
+
+    q = interpolate_mass_extraction(t_range)
+    dqdt = 0
 
     for index, tk in enumerate(t_range[:-1]):
         pressure_values.append(
-            step_rk4(f, tk, pressure_values[index], dt, pars))
+            step_rk4(f, tk, pressure_values[index], dt, [p0, q[index]] + pars + [dqdt]))
 
     return t_range, np.array(pressure_values)
+
 
 def load_pressure_data():
     ''' Returns time and temperature measurements from kettle experiment.
@@ -138,6 +147,7 @@ def load_pressure_data():
     Time, Pressure = np.genfromtxt('sb_pres.txt', delimiter=',', skip_header=1).T
 
     return Time, Pressure
+
 
 def interpolate_mass_extraction(t):
     ''' Return heat source parameter q for kettle experiment.
@@ -159,5 +169,47 @@ def interpolate_mass_extraction(t):
 
     return np.interp(t, Time, Mass)
 
+
+def plot_pressure_model():
+    t0 = 1953
+    t1 = 2012
+    p0 = 56.26
+    dt = 1
+    a = 5.1e-4
+    b = 0.65e-3
+    c = 0  # assuming c is zero
+    pars = [a, b, c]
+
+    t_data, p_data = load_pressure_data()
+
+    t, p = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, pars)
+    plt.plot(t, p, "-", color="blue", label="numerical solution")
+    plt.plot(t_data, p_data, "x", color="red", label="numerical solution")
+
+    def Tmodel(t, *pars):
+        t0 = 1953
+        t1 = 2012
+        p0 = 56.26
+        dt = 1
+
+        tm, Tm = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, list(pars))
+        return Tm
+
+    theta0 = [a, b, c]
+    constants = curve_fit(Tmodel, t_data, p_data, theta0)
+    a_const = constants[0][0]
+    b_const = constants[0][1]
+    print(a_const)
+    print(b_const)
+    pars = [a_const, b_const, c]
+
+    t, p = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, pars)
+    plt.plot(t, p, "-", color="green", label="improved solution")
+    plt.plot(t_data, p_data, "x", color="red", label="numerical solution")
+
+    plt.xlabel('Time [yr]')
+    plt.ylabel('Pressure [bar]')
+    plt.show()
+
 if __name__ == "__main__":
-    q = interpolate_mass_extraction(t)
+    plot_pressure_model()
