@@ -77,7 +77,7 @@ def step_rk4(f, tk, yk, h, args=None):
 
     return yk + h*((f0+2*f1+2*f2+f3)/6)
 
-def solve_ode(f, t0, t1, dt, p0, pars):
+def solve_pressure_ode(f, t0, t1, dt, p0, pars):
     ''' Solve an ODE numerically.
 
         Parameters:
@@ -121,3 +121,25 @@ def solve_ode(f, t0, t1, dt, p0, pars):
             step_rk4(f, tk, pressure_values[index], dt, pars))
 
     return t_range, np.array(pressure_values)
+
+def interpolate_mass_extraction(t):
+    ''' Return heat source parameter q for kettle experiment.
+        Parameters:
+        -----------
+        t : array-like
+            Vector of times at which to interpolate the heat source.
+        Returns:
+        --------
+        q : array-like
+            Heat source (Watts) interpolated at t.
+    '''
+    # suggested approach
+    # hard code vectors tv and qv which define a piecewise heat source for your kettle
+    # experiment
+    # use a built in Python interpolation function
+
+    Time, Mass = np.genfromtxt('sb_mass.txt', delimiter=',', skip_header=1).T
+
+    return np.interp(t, Time, Mass)
+
+if __name__ == "__main__":
