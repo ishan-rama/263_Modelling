@@ -82,7 +82,7 @@ def step_rk4(f, tk, yk, h, args=None):
     return yk + h * ((f0 + 2 * f1 + 2 * f2 + f3) / 6)
 
 
-def solve_pressure_ode(f, t0, t1, dt, p0, pars):
+def solve_pressure_ode(f, t0, t1, dt, p0,q, dqdt, pars):
     ''' Solve an ODE numerically.
 
         Parameters:
@@ -120,12 +120,6 @@ def solve_pressure_ode(f, t0, t1, dt, p0, pars):
     # Return arrays
     pressure_values = [p0]
     t_range = np.arange(t0, t1 + dt, dt)
-
-    q = interpolate_mass_extraction(t_range)
-    dqdt = q
-
-    for i in range(len(q)-1):
-        dqdt[i] = (q[i+1] - q[i])/dt
 
     for index, tk in enumerate(t_range[:-1]):
         pressure_values.append(
@@ -182,11 +176,18 @@ def plot_pressure_model():
     b = 0.65e-3
     c = 0.015
     pars = [a, b, c]
+    t_range = np.arange(t0, t1 + dt, dt)
+
+    q = interpolate_mass_extraction(t_range)
+    dqdt = q
+
+    for i in range(len(q)-1):
+        dqdt[i] = (q[i+1] - q[i])/dt
 
     t_data, p_data = load_pressure_data()
     plt.plot(t_data, p_data, "x", color="red", label="numerical solution")
 
-    t, p = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, pars)
+    t, p = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, q, dqdt, pars)
     plt.plot(t, p, "-", color="blue", label="numerical solution")
 
 
@@ -196,7 +197,7 @@ def plot_pressure_model():
         p0 = 56.26
         dt = 1
 
-        tm, Tm = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, list(pars))
+        tm, Tm = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, q, dqdt, list(pars))
         return Tm
 
     theta0 = [a, b, c]
@@ -209,7 +210,7 @@ def plot_pressure_model():
 
     pars = [a_const, b_const, c_const]
 
-    t, p = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, pars)
+    t, p = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, q, dqdt, pars)
     plt.plot(t, p, "-", color="green", label="improved solution")
 
     plt.xlabel('Time [yr]')
@@ -222,6 +223,24 @@ def plot_pressure_model():
         plt.show()
     else:
         plt.savefig('model_plot', dpi=300)
+
+def forward_prediction(qf):
+    '''Return heat source parameter q for kettle experiment.
+        Parameters:
+        -----------
+        qf : array
+            an array including the future mass extraction rates.
+        Returns:
+        --------
+        Nothing
+    '''
+    a = 4.470966422650354
+    b = -0.011407324159464579
+    c = -4.457079055032037
+
+    tp, p = load_pressure_data()
+
+
 
 if __name__ == "__main__":
     plot_pressure_model()
