@@ -1,3 +1,4 @@
+from cProfile import label
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.optimize import curve_fit
@@ -237,10 +238,52 @@ def forward_prediction(qf):
     a = 4.470966422650354
     b = -0.011407324159464579
     c = -4.457079055032037
+    pars = [a, b, c]
+    p0 = 56.26
+    dt = 1
 
     tp, p = load_pressure_data()
+    t0 = tp[0]
+    
+    t_current = np.arange(t0,tp[-1]+dt,dt)
+    t_future = np.arange(tp[-1] + 1,2042.5,dt)
+    t = np.concatenate((t_current,t_future))
 
+    q0 = interpolate_mass_extraction(t_current)
 
+    pressure = []
+
+    for i in range(len(qf)):
+        q1 = qf[i]*np.ones(len(t_future))
+        q = np.concatenate((q0,q1))
+        dqdt = q
+        for j in range(len(q)-1):
+            dqdt[j] = (q[j+1] - q[j])/dt
+        
+        t, pres = solve_pressure_ode(pressure_ode, t0, 2041.5, dt, p0, q, dqdt, pars)
+
+        pressure.append(pres)
+    
+    # plot forward prediction
+    for i in range(len(qf)):
+        plt.plot(t,pressure[i],label=f"Mass extraction = {qf[i]}kg/s")
+
+    # plot numerical solution
+    plt.plot(tp, p, 'x', label="numerical solution")
+
+    # plot analytical solution
+    plt.plot(t_current,pressure[0][:len(t_current)], label="analytical solution")
+
+    plt.xlabel('Time [yr]')
+    plt.ylabel('Pressure [bar]')
+    plt.legend()
+
+    save_figure = 1
+    if not save_figure:
+        plt.show()
+    else:
+        plt.savefig('forward prediction', dpi=300)
 
 if __name__ == "__main__":
-    plot_pressure_model()
+    #plot_pressure_model()
+    forward_prediction([1200,900,450,0])
