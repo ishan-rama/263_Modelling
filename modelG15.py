@@ -268,8 +268,8 @@ def forward_prediction(qf):
     for i in range(len(qf)):
         plt.plot(t,pressure[i],label=f"Mass extraction = {qf[i]}kg/s")
 
-    # plot numerical solution
-    plt.plot(tp, p, 'x', label="numerical solution")
+    # plot data point
+    plt.plot(tp, p, 'x', label="Data points")
 
     # plot model
     plt.plot(t_current,pressure[0][:len(t_current)], label="Model")
