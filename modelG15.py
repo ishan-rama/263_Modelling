@@ -271,8 +271,8 @@ def forward_prediction(qf):
     # plot numerical solution
     plt.plot(tp, p, 'x', label="numerical solution")
 
-    # plot analytical solution
-    plt.plot(t_current,pressure[0][:len(t_current)], label="analytical solution")
+    # plot model
+    plt.plot(t_current,pressure[0][:len(t_current)], label="Model")
 
     plt.xlabel('Time [yr]')
     plt.ylabel('Pressure [bar]')
