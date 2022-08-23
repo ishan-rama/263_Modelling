@@ -178,19 +178,20 @@ def plot_pressure_model():
     c = 0.015
     pars = [a, b, c]
     t_range = np.arange(t0, t1 + dt, dt)
-
     q = interpolate_mass_extraction(t_range)
-    dqdt = np.divide(np.diff(q), np.diff(t_range))
-    dqdt = np.append(dqdt, dqdt[-1])
+    dqdt = q.copy()
+
+    for i in range(len(q)-1):
+        dqdt[i] = (q[i+1] - q[i])/dt
 
     t_data, p_data = load_pressure_data()
-    plt.plot(t_data, p_data, "x", color="red", label="numerical solution")
+    plt.plot(t_data, p_data, "x", color="red", label="observations")
 
     t, p = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, q, dqdt, pars)
-    plt.plot(t, p, "-", color="blue", label="numerical solution")
+    plt.plot(t, p, "-", color="blue", label="initial model")
 
 
-    def Tmodel(t, *pars):
+    def Pmodel(t, *pars):
         t0 = 1953
         t1 = 2012
         p0 = 56.26
@@ -200,7 +201,7 @@ def plot_pressure_model():
         return Tm
 
     theta0 = [a, b, c]
-    constants = curve_fit(Tmodel, t_data, p_data, theta0)
+    constants = curve_fit(Pmodel, t_data, p_data, theta0)
     a_const = constants[0][0]
     b_const = constants[0][1]
     c_const = constants[0][2]
@@ -210,7 +211,7 @@ def plot_pressure_model():
     pars = [a_const, b_const, c_const]
 
     t, p = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, q, dqdt, pars)
-    plt.plot(t, p, "-", color="green", label="improved solution")
+    plt.plot(t, p, "-", color="green", label="improved model")
 
     plt.xlabel('Time [yr]')
     plt.ylabel('Pressure [bar]')
@@ -222,6 +223,10 @@ def plot_pressure_model():
         plt.show()
     else:
         plt.savefig('model_plot', dpi=300)
+        plt.show()
+
+    return a_const, b_const, c_const
+
 
 def forward_prediction(qf):
     '''Return heat source parameter q for kettle experiment.
@@ -254,8 +259,9 @@ def forward_prediction(qf):
     for i in range(len(qf)):
         q1 = qf[i]*np.ones(len(t_future))
         q = np.concatenate((q0,q1))
-        dqdt = np.divide(np.diff(q), np.diff(t))
-        dqdt = np.append(dqdt, dqdt[-1])
+        dqdt = q.copy()
+        for j in range(len(q)-1):
+            dqdt[j] = (q[j+1] - q[j])/dt
         
         t, pres = solve_pressure_ode(pressure_ode, t0, 2029.5, dt, p0, q, dqdt, pars)
 
