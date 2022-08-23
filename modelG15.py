@@ -146,6 +146,23 @@ def load_pressure_data():
 
     return Time, Pressure
 
+def load_subsidence_data():
+    ''' Returns time and temperature measurements from kettle experiment.
+        Parameters:
+        -----------
+        none
+        Returns:
+        --------
+        t : array-like
+            Vector of times (seconds) at which measurements were taken.
+        T : array-like
+            Vector of mass extraction measurements.
+    '''
+    # File I/O commands to read in the data
+    Time, Subsidence = np.genfromtxt('sb_disp.txt', delimiter=',', skip_header=1).T
+
+    return Time, Subsidence
+
 
 def interpolate_mass_extraction(t):
     ''' Return heat source parameter q for kettle experiment.
@@ -244,8 +261,10 @@ def forward_prediction(qf):
     pars = [a, b, c]
     p0 = 56.26
     dt = 1
+    d = 0.5
 
     tp, p = load_pressure_data()
+    ts, s = load_subsidence_data()
     t0 = tp[0]
     
     t_current = np.arange(t0,tp[-1],dt)
@@ -255,6 +274,7 @@ def forward_prediction(qf):
     q0 = interpolate_mass_extraction(t_current)
 
     pressure = []
+    subsidence = []
 
     for i in range(len(qf)):
         q1 = qf[i]*np.ones(len(t_future))
@@ -264,24 +284,37 @@ def forward_prediction(qf):
             dqdt[j] = (q[j+1] - q[j])/dt
         
         t, pres = solve_pressure_ode(pressure_ode, t0, 2029.5, dt, p0, q, dqdt, pars)
+        subs = pres.copy()
+        for j in range(len(t)):
+            subs[j] = subsidence_model(t[j], pres[j], d)
 
         pressure.append(pres)
+        subsidence.append(subs)
     
+    f, (ax1,ax2) = plt.subplots(1,2)
+
     # plot forward prediction
     for i in range(len(qf)):
-        plt.plot(t,pressure[i],label=f"Mass extraction = {qf[i]}kg/s")
+        ax1.plot(t,pressure[i],label=f"Mass extraction = {qf[i]}kg/s")
+        ax2.plot(t,subsidence[i],label=f"Mass extraction = {qf[i]}kg/s")
 
     # plot data point
-    plt.plot(tp, p, 'x', label="Data points")
+    ax1.plot(tp, p, 'x', label="Data points")
+    ax2.plot(ts, s, 'x', label="Data points")
 
     # plot model
-    plt.plot(t_current,pressure[0][:len(t_current)], label="Model")
+    ax1.plot(t_current,pressure[0][:len(t_current)], label="Model")
+    ax2.plot(t_current,subsidence[0][:len(t_current)], label="Model")
 
-    plt.xlabel('Time [yr]')
-    plt.ylabel('Pressure [bar]')
-    plt.legend()
+    ax1.set_xlabel('Time [yr]')
+    ax1.set_ylabel('Pressure [bar]')
+    ax1.legend()
 
-    save_figure = 1
+    ax2.set_xlabel('Time [yr]')
+    ax2.set_ylabel('subsidence [m]')
+    ax2.legend()
+
+    save_figure = 0
     if not save_figure:
         plt.show()
     else:
@@ -314,7 +347,7 @@ def plot_subsidence_model(a,b,c):
         s[i] = subsidence_model(t[i], p[i], d)
     plt.plot(t, s, "-", color="blue", label="improved solution")
 
-    Time, Disp = np.genfromtxt('sb_disp.txt', delimiter=',', skip_header=1).T
+    Time, Disp = load_subsidence_data()
     plt.plot(Time, Disp, "x", color="red", label="observations")
 
     plt.xlabel('Time [yr]')
@@ -325,6 +358,6 @@ def plot_subsidence_model(a,b,c):
     plt.show()
 
 if __name__ == "__main__":
-    a, b, c = plot_pressure_model()
-    plot_subsidence_model(a, b, c)
-    #forward_prediction([1250,900,450,0])
+    #a, b, c = plot_pressure_model()
+    #plot_subsidence_model(a, b, c)
+    forward_prediction([1250,900,450,0])
