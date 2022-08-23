@@ -122,7 +122,7 @@ def solve_pressure_ode(f, t0, t1, dt, p0, pars):
     t_range = np.arange(t0, t1 + dt, dt)
 
     q = interpolate_mass_extraction(t_range)
-    dqdt = q
+    dqdt = q.copy()
 
     for i in range(len(q)-1):
         dqdt[i] = (q[i+1] - q[i])/dt
@@ -184,13 +184,13 @@ def plot_pressure_model():
     pars = [a, b, c]
 
     t_data, p_data = load_pressure_data()
-    plt.plot(t_data, p_data, "x", color="red", label="numerical solution")
+    plt.plot(t_data, p_data, "x", color="red", label="observations")
 
     t, p = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, pars)
-    plt.plot(t, p, "-", color="blue", label="numerical solution")
+    plt.plot(t, p, "-", color="blue", label="initial model")
 
 
-    def Tmodel(t, *pars):
+    def Pmodel(t, *pars):
         t0 = 1953
         t1 = 2012
         p0 = 56.26
@@ -200,7 +200,7 @@ def plot_pressure_model():
         return Tm
 
     theta0 = [a, b, c]
-    constants = curve_fit(Tmodel, t_data, p_data, theta0)
+    constants = curve_fit(Pmodel, t_data, p_data, theta0)
     a_const = constants[0][0]
     b_const = constants[0][1]
     c_const = constants[0][2]
@@ -210,7 +210,7 @@ def plot_pressure_model():
     pars = [a_const, b_const, c_const]
 
     t, p = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, pars)
-    plt.plot(t, p, "-", color="green", label="improved solution")
+    plt.plot(t, p, "-", color="green", label="improved model")
 
     plt.xlabel('Time [yr]')
     plt.ylabel('Pressure [bar]')
@@ -222,6 +222,42 @@ def plot_pressure_model():
         plt.show()
     else:
         plt.savefig('model_plot', dpi=300)
+        plt.show()
+
+    return a_const, b_const, c_const
+
+def subsidence_model(t, p, d):
+    return d * p * (1 - (1 / (1 + np.exp((t - 1979.1) / 8.2))))
+
+def plot_subsidence_model(a,b,c):
+    pars = [a, b, c]
+
+    t0 = 1953
+    t1 = 2012
+    p0 = 56.26
+    dt = 1
+    d = 0.5
+
+    t, p = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, pars)
+
+    s = p.copy()
+    for i in range(len(t)):
+        s[i] = subsidence_model(t[i], p[i], d)
+    plt.plot(t, s, "-", color="blue", label="improved solution")
+
+    Time, Disp = np.genfromtxt('sb_disp.txt', delimiter=',', skip_header=1).T
+    plt.plot(Time, Disp, "x", color="red", label="observations")
+
+    plt.xlabel('Time [yr]')
+    plt.ylabel('Subsidence [m]')
+    plt.title('Model Plot')
+    plt.legend()
+
+    plt.show()
 
 if __name__ == "__main__":
-    plot_pressure_model()
+    a, b, c = plot_pressure_model()
+    plot_subsidence_model(a, b, c)
+
+
+
