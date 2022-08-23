@@ -287,6 +287,44 @@ def forward_prediction(qf):
     else:
         plt.savefig('forward prediction', dpi=300)
 
+def subsidence_model(t, p, d):
+    return d * p * (1 - (1 / (1 + np.exp((t - 1979.1) / 8.2))))
+
+def plot_subsidence_model(a,b,c):
+    pars = [a, b, c]
+
+    t0 = 1953
+    t1 = 2012
+    p0 = 56.26
+    dt = 1
+    d = 0.5
+
+    t_range = np.arange(t0, t1 + dt, dt)
+
+    q = interpolate_mass_extraction(t_range)
+    dqdt = q.copy()
+
+    for i in range(len(q)-1):
+        dqdt[i] = (q[i+1] - q[i])/dt
+
+    t, p = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, q, dqdt, pars)
+
+    s = p.copy()
+    for i in range(len(t)):
+        s[i] = subsidence_model(t[i], p[i], d)
+    plt.plot(t, s, "-", color="blue", label="improved solution")
+
+    Time, Disp = np.genfromtxt('sb_disp.txt', delimiter=',', skip_header=1).T
+    plt.plot(Time, Disp, "x", color="red", label="observations")
+
+    plt.xlabel('Time [yr]')
+    plt.ylabel('Subsidence [m]')
+    plt.title('Model Plot')
+    plt.legend()
+
+    plt.show()
+
 if __name__ == "__main__":
-    #plot_pressure_model()
-    forward_prediction([1250,900,450,0])
+    a, b, c = plot_pressure_model()
+    plot_subsidence_model(a, b, c)
+    #forward_prediction([1250,900,450,0])
