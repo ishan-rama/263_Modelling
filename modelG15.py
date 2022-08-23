@@ -180,10 +180,8 @@ def plot_pressure_model():
     t_range = np.arange(t0, t1 + dt, dt)
 
     q = interpolate_mass_extraction(t_range)
-    dqdt = q
-
-    for i in range(len(q)-1):
-        dqdt[i] = (q[i+1] - q[i])/dt
+    dqdt = np.divide(np.diff(q), np.diff(t_range))
+    dqdt = np.append(dqdt, dqdt[-1])
 
     t_data, p_data = load_pressure_data()
     plt.plot(t_data, p_data, "x", color="red", label="numerical solution")
@@ -235,9 +233,9 @@ def forward_prediction(qf):
         --------
         Nothing
     '''
-    a = 4.470966422650354
-    b = -0.011407324159464579
-    c = -4.457079055032037
+    a = 0.0014699848529127948
+    b = 0.06322104915197868
+    c = 0.008719645302839404
     pars = [a, b, c]
     p0 = 56.26
     dt = 1
@@ -245,8 +243,8 @@ def forward_prediction(qf):
     tp, p = load_pressure_data()
     t0 = tp[0]
     
-    t_current = np.arange(t0,tp[-1]+dt,dt)
-    t_future = np.arange(tp[-1] + 1,2042.5,dt)
+    t_current = np.arange(t0,tp[-1],dt)
+    t_future = np.arange(tp[-1],2030.5,dt)
     t = np.concatenate((t_current,t_future))
 
     q0 = interpolate_mass_extraction(t_current)
@@ -256,11 +254,10 @@ def forward_prediction(qf):
     for i in range(len(qf)):
         q1 = qf[i]*np.ones(len(t_future))
         q = np.concatenate((q0,q1))
-        dqdt = q
-        for j in range(len(q)-1):
-            dqdt[j] = (q[j+1] - q[j])/dt
+        dqdt = np.divide(np.diff(q), np.diff(t))
+        dqdt = np.append(dqdt, dqdt[-1])
         
-        t, pres = solve_pressure_ode(pressure_ode, t0, 2041.5, dt, p0, q, dqdt, pars)
+        t, pres = solve_pressure_ode(pressure_ode, t0, 2029.5, dt, p0, q, dqdt, pars)
 
         pressure.append(pres)
     
@@ -286,4 +283,4 @@ def forward_prediction(qf):
 
 if __name__ == "__main__":
     #plot_pressure_model()
-    forward_prediction([1200,900,450,0])
+    forward_prediction([1250,900,450,0])
