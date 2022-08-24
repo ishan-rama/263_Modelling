@@ -262,7 +262,9 @@ def forward_prediction(qf):
     pars = [a, b, c]
     p0 = 56.26
     dt = 1
-    d = 0.63
+    d = 0.741947934080013
+    d_t = 12.161738208806344
+    tm = 1983.9891553334935
 
     tp, p = load_pressure_data()
     ts, s = load_subsidence_data()
@@ -285,9 +287,7 @@ def forward_prediction(qf):
             dqdt[j] = (q[j+1] - q[j])/dt
         
         t, pres = solve_pressure_ode(pressure_ode, t0, 2029.5, dt, p0, q, dqdt, pars)
-        subs = pres.copy()
-        for j in range(len(t)):
-            subs[j] = subsidence_model(t[j], p0 - pres[j], d)
+        subs = subsidence_model(t, pres, d, d_t, tm)
 
         pressure.append(pres)
         subsidence.append(subs)
@@ -323,10 +323,11 @@ def forward_prediction(qf):
 
 def subsidence_model(t, p, d, diffuse_t, t_max):
     #Default diffuse_t = 8.2 (diffusion time)
+    p0 = 56.26
     s = []
     for i in range(len(t)):
         s.append(
-            d * p[i] * (1 - (1 / (1 + np.exp((t[i] - t_max) / diffuse_t)))))
+            d * (p0 - p[i]) * (1 - (1 / (1 + np.exp((t[i] - t_max) / diffuse_t)))))
 
     return np.array(s)
 
@@ -386,4 +387,4 @@ def plot_subsidence_model(a,b,c):
 if __name__ == "__main__":
     a, b, c = plot_pressure_model()
     plot_subsidence_model(a, b, c)
-    #forward_prediction([1250,900,450,0])
+    forward_prediction([1250,900,450,0])
