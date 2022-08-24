@@ -261,14 +261,14 @@ def forward_prediction(qf):
     pars = [a, b, c]
     p0 = 56.26
     dt = 1
-    d = 0.5
+    d = 0.63
 
     tp, p = load_pressure_data()
     ts, s = load_subsidence_data()
     t0 = tp[0]
     
-    t_current = np.arange(t0,tp[-1],dt)
-    t_future = np.arange(tp[-1],2030.5,dt)
+    t_current = np.arange(t0,tp[-1]+2,dt)
+    t_future = np.arange(tp[-1]+2,2030.5,dt)
     t = np.concatenate((t_current,t_future))
 
     q0 = interpolate_mass_extraction(t_current)
@@ -286,7 +286,7 @@ def forward_prediction(qf):
         t, pres = solve_pressure_ode(pressure_ode, t0, 2029.5, dt, p0, q, dqdt, pars)
         subs = pres.copy()
         for j in range(len(t)):
-            subs[j] = subsidence_model(t[j], pres[j], d)
+            subs[j] = subsidence_model(t[j], p0 - pres[j], d)
 
         pressure.append(pres)
         subsidence.append(subs)
