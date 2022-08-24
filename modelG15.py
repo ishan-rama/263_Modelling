@@ -318,6 +318,7 @@ def forward_prediction(qf):
     ax2.legend()
 
     save_figure = 1
+    f.set_size_inches(20.,9.)
     if not save_figure:
         plt.show()
     else:
