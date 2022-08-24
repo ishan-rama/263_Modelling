@@ -309,13 +309,15 @@ def forward_prediction(qf):
 
     ax1.set_xlabel('Time [yr]')
     ax1.set_ylabel('Pressure [bar]')
+    ax1.set_title("Forecast for pressure")
     ax1.legend()
 
     ax2.set_xlabel('Time [yr]')
     ax2.set_ylabel('subsidence [m]')
+    ax2.set_title("Forecast for subsidence")
     ax2.legend()
 
-    save_figure = 0
+    save_figure = 1
     if not save_figure:
         plt.show()
     else:
@@ -335,7 +337,7 @@ def plot_subsidence_model(a,b,c):
     pars = [a, b, c]
 
     t0 = 1953
-    t1 = 2012
+    t1 = 2013
     p0 = 56.26
     dt = 1
     d = 1
@@ -382,7 +384,11 @@ def plot_subsidence_model(a,b,c):
     plt.title('Model Plot')
     plt.legend()
 
-    plt.show()
+    save_figure = 1
+    if not save_figure:
+        plt.show()
+    else:
+        plt.savefig('subsidence plot', dpi=300)
 
 if __name__ == "__main__":
     a, b, c = plot_pressure_model()
