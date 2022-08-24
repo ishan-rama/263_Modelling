@@ -165,7 +165,7 @@ def plot_pressure_model():
     t0 = 1953
     t1 = 2012
     p0 = 56.26
-    dt = 0.001  # STEPSIZE
+    dt = 0.01  # STEPSIZE
     a = 5.1e-4
     b = 0.65e-3
     c = 0.015
@@ -189,7 +189,7 @@ def plot_pressure_model():
         t0 = 1953
         t1 = 2012
         p0 = 56.26
-        dt = 0.001 #STEPSIZE 
+        dt = 0.01 #STEPSIZE 
 
         tm, Tm = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, list(pars))
         return Tm
@@ -204,7 +204,7 @@ def plot_pressure_model():
 
     pars = [a_const, b_const, c_const]
 
-    dt = 0.001  # STEPSIZE
+    dt = 0.01  # STEPSIZE
 
     t, p = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, pars)
     plt.plot(t, p, "-", color="green", label="improved model")
@@ -224,9 +224,14 @@ def plot_pressure_model():
     return a_const, b_const, c_const
 
 
-def subsidence_model(t, p, d):
-    return d * p * (1 - (1 / (1 + np.exp((t - 1979.1) / 8.2))))
+def subsidence_model(t, p, d, diffuse_t, t_max):
+    #Default diffuse_t = 8.2 (diffusion time)
+    s = []
+    for i in range(len(t)):
+        s.append(
+            d * p[i] * (1 - (1 / (1 + np.exp((t[i] - t_max) / diffuse_t)))))
 
+    return np.array(s)
 
 def plot_subsidence_model(a, b, c):
     pars = [a, b, c]
@@ -235,17 +240,38 @@ def plot_subsidence_model(a, b, c):
     t1 = 2012
     p0 = 56.26
     dt = 1
-    d = 0.5
+    d = 1
+    diffuse_t = 8.2
+    t_max = 1979.1
 
     t, p = solve_pressure_ode(pressure_ode, t0, t1, dt, p0, pars)
 
-    s = p.copy()
-    for i in range(len(t)):
-        s[i] = subsidence_model(t[i], p[i], d)
-    plt.plot(t, s, "-", color="blue", label="improved solution")
-
     Time, Disp = np.genfromtxt('sb_disp.txt', delimiter=',', skip_header=1).T
     plt.plot(Time, Disp, "x", color="red", label="observations")
+
+    full_disp_values = np.interp(t, Time, Disp)
+
+    s = subsidence_model(t, p, d, diffuse_t, t_max)
+
+    def Smodel(t, *pars):
+
+        s = subsidence_model(t, p, *pars)
+
+        return s
+
+    theta0 = [d, diffuse_t, t_max]
+    constants = curve_fit(Smodel, t, full_disp_values, theta0)
+    d_const = constants[0][0]
+    diffuse_t_const = constants[0][1]
+    t_max_const  = constants[0][2]
+  
+    print(f'd = {d_const}, diffuse_t_const = {diffuse_t_const}, t_max = {t_max_const}')
+
+    s3 = subsidence_model(t, p, d_const, diffuse_t_const, t_max_const)
+
+    plt.plot(t, s3, "-", color="blue", label="improved solution")
+
+
 
     plt.xlabel('Time [yr]')
     plt.ylabel('Subsidence [m]')
@@ -257,4 +283,4 @@ def plot_subsidence_model(a, b, c):
 
 if __name__ == "__main__":
     a, b, c = plot_pressure_model()
-    #plot_subsidence_model(a, b, c)
+    plot_subsidence_model(a, b, c)
