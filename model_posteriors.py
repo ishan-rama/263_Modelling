@@ -86,8 +86,90 @@ def grid_search():
 
     return a,b,P
 
+def fit_mvn(parspace, dist):
+    """Finds the parameters of a multivariate normal distribution that best fits the data
 
+    Parameters:
+    -----------
+        parspace : array-like
+            list of meshgrid arrays spanning parameter space
+        dist : array-like 
+            PDF over parameter space
+    Returns:
+    --------
+        mean : array-like
+            distribution mean
+        cov : array-like
+            covariance matrix		
+    """
+    
+    # dimensionality of parameter space
+    N = len(parspace)
+    
+    # flatten arrays
+    parspace = [p.flatten() for p in parspace]
+    dist = dist.flatten()
+    
+    # compute means
+    mean = [np.sum(dist*par)/np.sum(dist) for par in parspace]
+    
+    # compute covariance matrix
+        # empty matrix
+    cov = np.zeros((N,N))
+        # loop over rows
+    for i in range(0,N):
+            # loop over upper triangle
+        for j in range(i,N):
+                # compute covariance
+            cov[i,j] = np.sum(dist*(parspace[i] - mean[i])*(parspace[j] - mean[j]))/np.sum(dist)
+                # assign to lower triangle
+            if i != j: cov[j,i] = cov[i,j]
+            
+    return np.array(mean), np.array(cov)
+        
+
+def construct_samples(a,b,P,N_samples):
+	''' This function constructs samples from a multivariate normal distribution
+	    fitted to the data.
+
+		Parameters:
+		-----------
+		a : array-like
+			Vector of 'a' parameter values.
+		b : array-like
+			Vector of 'b' parameter values.
+		P : array-like
+			Posterior probability distribution.
+		N_samples : int
+			Number of samples to take.
+
+		Returns:
+		--------
+		samples : array-like
+			parameter samples from the multivariate normal
+	'''
+	# **to do**
+	# 1. FIGURE OUT how to use the multivariate normal functionality in numpy
+	#    to generate parameter samples
+	# 2. ANSWER the questions in the lab document
+
+	# compute properties (fitting) of multivariate normal distribution
+	# mean = a vector of parameter means
+	# covariance = a matrix of parameter variances and correlations
+	A, B = np.meshgrid(a,b,indexing='ij')
+	mean, covariance = fit_mvn([A,B], P)
+
+	# 1. create samples using numpy function multivariate_normal (Google it)
+	#samples=
+	samples = np.random.multivariate_normal(mean, covariance, N_samples)
+
+	# plot samples and predictions
+	plot_samples(a, b, P=P, samples=samples)
+
+	return samples
 
 if __name__=="__main__":
     get_familiar_with_model()
     a,b,posterior = grid_search()
+    N = 100
+    samples = construct_samples(a, b, posterior, N)

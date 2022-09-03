@@ -19,6 +19,22 @@ from modelG15 import *
 # set font size
 text_size = 16.
 
+t0 = 1953
+t1 = 2012
+p0 = 56.26
+dt = 1
+a = 0.0014699848529127948
+b = 0.06322104915197868
+c = 0.008719645302839404
+pars = [a, b, c]
+
+t_range = np.arange(t0, t1 + dt, dt)
+
+q = interpolate_mass_extraction(t_range)
+dqdt = q.copy()
+for i in range(len(q)-1):
+    dqdt[i] = (q[i+1] - q[i])/dt
+
 def plot_lmp(lmp, theta):
     """Plot lmp model
 
@@ -186,9 +202,9 @@ def plot_samples2D(a, b, P, samples):
     A, B = np.meshgrid(a, b, indexing='ij')
     ax1.plot_surface(A, B, P, rstride=1, cstride=1,cmap=cm.Oranges, lw = 0.5)	# show surface
     
-    tp,po = np.genfromtxt('wk_pressure_history.csv', delimiter = ',')[:28,:].T
+    tp,po = load_pressure_data()
     v = 2
-    s = np.array([np.sum((solve_lpm(tp,a,b)-po)**2)/v for a,b in samples])
+    s = np.array([np.sum((solve_pressure_ode(pressure_ode, t0, t1, dt, p0, q, dqdt, pars)-po)**2)/v for a,b in samples])
     p = np.exp(-s/2.)
     p = p/np.max(p)*np.max(P)*1.2
         
@@ -229,9 +245,9 @@ def plot_samples3D(a, b, c, P, samples):
         for k in range(len(c)):
             Pbc[j][k] = sum([P[i][j][k] for i in range(len(a))])
 
-    tp,po = np.genfromtxt('wk_pressure_history.csv', delimiter = ',')[:28,:].T
+    tp,po = load_pressure_data()
     v = 2
-    s = np.array([np.sum((solve_lpm(tp,a,b,c)-po)**2)/v for a,b,c in samples])
+    s = np.array([np.sum((solve_pressure_ode(pressure_ode, t0, t1, dt, p0, q, dqdt, pars)-po)**2)/v for a,b,c in samples])
     p = np.exp(-s/2.)
     p = p/np.max(p)*np.max(P)*1.2
 
