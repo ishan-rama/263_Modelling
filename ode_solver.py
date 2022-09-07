@@ -4,8 +4,9 @@
 # 	Functions:
 #       interpolate_mass_extraction: Loads in and interpolates mass extraction data at t_interp times using cubic splines.
 #		pressure_ode: Returns the derivative dp/dt for given parameters.
-#		tep_rk4: Performs one step of the Classic RK4 method
+#		step_rk4: Performs one step of the Classic RK4 method
 #		solve_pressure_ode: Solves pressure_ode numerically using above functions.
+#       solve_pressure_ode_BENCHMARK: Solves pressure_ode numerically with preset parameters for benchmarking.
 #########################################################################################
 
 #imports
@@ -68,7 +69,6 @@ def pressure_ode(p, q, p0, a, b, c, dqdt):
         >>> ode_model(1, 2, 3, 4, 5, 6, 0)
         10
     '''
-
     return -a * q - b * (p - p0) - c * dqdt
 
 
@@ -95,7 +95,7 @@ def step_rk4(f, yk, h, args):
     #Different args due to different dqdt at evaluated points
     args1= args[:-1] #Excludes dqdt2
     args2= args[:-2] + [(args[-1]+ args[-2])/2] #Takes average of dqdt1 and dqdt2 for middle point
-    args3 = args[:-2] + args[-1] #Excludes dqdt1
+    args3 = args[:-2] + [args[-1]] #Excludes dqdt1
     
     f0 = f(yk, *args1)
     f1 = f(yk + (h * f0) / 2, *args2)
@@ -159,5 +159,53 @@ def solve_pressure_ode(f, t0, t1, dt, p0, pars):
     return t_range, np.array(pressure_values)
 
 
+def solve_pressure_ode_BENCHMARK(f, t0, t1, dt, p0, pars):
+    ''' Solves pressure_ode numerically with preset parameters for benchmarking.
 
+        Parameters:
+        -----------
+        f : callable
+            Function that returns dp/dt (pressure_ode)
+        t0 : float
+            Initial time of solution
+        t1 : float
+            Final time of solution
+        dt : float
+            Time step
+        p0 : float
+            Initial value of solution - Initial Pressure
+        pars : array-like
+            Strength parameters - [a, b, c]
 
+        Returns:
+        --------
+        t_range : array-like
+            Independent time variable vector.
+        pressure_values : array-like
+            Dependent variable solution vector.
+
+        Notes:
+        ------
+        ODE will be solved using RK4 method.
+        Assume that the pressure_ode takes the following inputs, in order:
+            1. dependent variable
+            2. parameter list [q, p0, pars:(a, b, c), dqdt= 0, dqdt= 0]
+    '''  
+    #Create solution arrays
+    pressure_values = [p0]
+    t_range = np.arange(t0, t1 + dt, dt)
+
+    #Load in mass extraction values interpolated at t_range times
+    #q = interpolate_mass_extraction(t_range) #Not needed for benchmarking
+    q = 1
+
+    #Find the derivative at each point numerically
+    #dqdt = np.gradient(q, dt) #Not needed as q is a constant 
+    dqdt = 0
+
+    for index, tk in enumerate(t_range[:-1]):
+        # Joining parameters into one list
+        args = [q, p0] + pars + [dqdt, dqdt]
+        pressure_values.append(step_rk4(f, pressure_values[index], dt, args))
+
+    return t_range, np.array(pressure_values)
