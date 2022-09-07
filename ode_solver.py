@@ -3,10 +3,11 @@
 #
 # 	Functions:
 #       interpolate_mass_extraction: Loads in and interpolates mass extraction data at t_interp times using cubic splines.
+#       load_pressure_data: Returns time and pressure measurements from sb_pres.txt.
+#       load_subsidence_data: Returns time and subsidence measurements from sb_disp.txt.
 #		pressure_ode: Returns the derivative dp/dt for given parameters.
 #		step_rk4: Performs one step of the Classic RK4 method
 #		solve_pressure_ode: Solves pressure_ode numerically using above functions.
-#       solve_pressure_ode_BENCHMARK: Solves pressure_ode numerically with preset parameters for benchmarking.
 #########################################################################################
 
 #imports
@@ -37,6 +38,47 @@ def interpolate_mass_extraction(t_interp):
     q_values = interpolate.splev(t_interp, splines)
 
     return q_values
+
+
+def load_pressure_data():
+    ''' Returns time and pressure measurements from sb_pres.txt.
+
+        Parameters:
+        -----------
+        none
+
+        Returns:
+        --------
+        time : array-like
+            Vector of times (year)
+        pressure : array-like
+            Vector of pressure measurements (bars)
+    '''
+    # File I/O commands to read in the data
+    time, pressure = np.genfromtxt(
+        'sb_pres.txt', delimiter=',', skip_header=1).T
+
+    return time, pressure
+
+
+def load_subsidence_data():
+    ''' Returns time and subsidence measurements from sb_disp.txt.
+
+        Parameters:
+        -----------
+        none
+
+        Returns:
+        --------
+        time : array-like
+            Vector of times (seconds) at which measurements were taken.
+        subsidence : array-like
+            Vector of subsidence values (metres).
+    '''
+    # File I/O commands to read in the data
+    time, subsidence = np.genfromtxt('sb_disp.txt', delimiter=',', skip_header=1).T
+
+    return time, subsidence
 
 
 def pressure_ode(p, q, p0, a, b, c, dqdt):
@@ -105,7 +147,7 @@ def step_rk4(f, yk, h, args):
     return yk + h * ((f0 + 2 * f1 + 2 * f2 + f3) / 6)
 
 
-def solve_pressure_ode(f, t0, t1, dt, p0, pars):
+def solve_pressure_ode(f, t0, t1, dt, pars):
     ''' Solves pressure_ode numerically.
 
         Parameters:
@@ -121,7 +163,7 @@ def solve_pressure_ode(f, t0, t1, dt, p0, pars):
         p0 : float
             Initial value of solution - Initial Pressure
         pars : array-like
-            Strength parameters - [a, b, c]
+            Initial pressure and Strength parameters - [p0, a, b, c]
 
         Returns:
         --------
@@ -143,7 +185,7 @@ def solve_pressure_ode(f, t0, t1, dt, p0, pars):
         the other 2 points in the rk4 method.
     '''
     #Create solution arrays
-    pressure_values = [p0]
+    pressure_values = [pars[0]]
     t_range = np.arange(t0, t1 + dt, dt)
 
     #Load in mass extraction values interpolated at t_range times
@@ -153,59 +195,18 @@ def solve_pressure_ode(f, t0, t1, dt, p0, pars):
     dqdt = np.gradient(q, dt)
 
     for index, tk in enumerate(t_range[:-1]):
-        args= [q[index], p0] + pars + [dqdt[index], dqdt[index+1]] #Joining parameters into one list
+        args= [q[index]] + pars + [dqdt[index], dqdt[index+1]] #Joining parameters into one list
         pressure_values.append(step_rk4(f, pressure_values[index], dt, args))
 
     return t_range, np.array(pressure_values)
 
 
-def solve_pressure_ode_BENCHMARK(f, t0, t1, dt, p0, pars):
-    ''' Solves pressure_ode numerically with preset parameters for benchmarking.
+def subsidence_model(t, p, d, diffuse_t, t_max):
+    #Default diffuse_t = 8.2 (diffusion time)
+    p0 = 56.26
+    s = []
+    for i in range(len(t)):
+        s.append(
+            d * (p0 - p[i]) * (1 - (1 / (1 + np.exp((t[i] - t_max) / diffuse_t)))))
 
-        Parameters:
-        -----------
-        f : callable
-            Function that returns dp/dt (pressure_ode)
-        t0 : float
-            Initial time of solution
-        t1 : float
-            Final time of solution
-        dt : float
-            Time step
-        p0 : float
-            Initial value of solution - Initial Pressure
-        pars : array-like
-            Strength parameters - [a, b, c]
-
-        Returns:
-        --------
-        t_range : array-like
-            Independent time variable vector.
-        pressure_values : array-like
-            Dependent variable solution vector.
-
-        Notes:
-        ------
-        ODE will be solved using RK4 method.
-        Assume that the pressure_ode takes the following inputs, in order:
-            1. dependent variable
-            2. parameter list [q, p0, pars:(a, b, c), dqdt= 0, dqdt= 0]
-    '''  
-    #Create solution arrays
-    pressure_values = [p0]
-    t_range = np.arange(t0, t1 + dt, dt)
-
-    #Load in mass extraction values interpolated at t_range times
-    #q = interpolate_mass_extraction(t_range) #Not needed for benchmarking
-    q = 1
-
-    #Find the derivative at each point numerically
-    #dqdt = np.gradient(q, dt) #Not needed as q is a constant 
-    dqdt = 0
-
-    for index, tk in enumerate(t_range[:-1]):
-        # Joining parameters into one list
-        args = [q, p0] + pars + [dqdt, dqdt]
-        pressure_values.append(step_rk4(f, pressure_values[index], dt, args))
-
-    return t_range, np.array(pressure_values)
+    return np.array(s)

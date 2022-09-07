@@ -2,6 +2,7 @@
 # Function that produces benchmark plots for Model Verification.
 #
 # 	Functions:
+#       solve_pressure_ode_BENCHMARK: Solves pressure_ode numerically with preset parameters for benchmarking.
 #       plot_benchmark: Generates 3 plots 
 #           1. Benchmark - Comparing Analytical and Numerical solutions
 #           2. Error Analysis - Relative Error between Analytical and Numberical solutions
@@ -13,6 +14,58 @@ import warnings
 import numpy as np
 from matplotlib import pyplot as plt
 from ode_solver import *
+
+
+def solve_pressure_ode_BENCHMARK(f, t0, t1, dt, p0, pars):
+    ''' Solves pressure_ode numerically with preset parameters for benchmarking.
+
+        Parameters:
+        -----------
+        f : callable
+            Function that returns dp/dt (pressure_ode)
+        t0 : float
+            Initial time of solution
+        t1 : float
+            Final time of solution
+        dt : float
+            Time step
+        p0 : float
+            Initial value of solution - Initial Pressure
+        pars : array-like
+            Strength parameters - [a, b, c]
+
+        Returns:
+        --------
+        t_range : array-like
+            Independent time variable vector.
+        pressure_values : array-like
+            Dependent variable solution vector.
+
+        Notes:
+        ------
+        ODE will be solved using RK4 method.
+        Assume that the pressure_ode takes the following inputs, in order:
+            1. dependent variable
+            2. parameter list [q, p0, pars:(a, b, c), dqdt= 0, dqdt= 0]
+    '''  
+    #Create solution arrays
+    pressure_values = [p0]
+    t_range = np.arange(t0, t1 + dt, dt)
+
+    #Load in mass extraction values interpolated at t_range times
+    #q = interpolate_mass_extraction(t_range) #Not needed for benchmarking
+    q = 1
+
+    #Find the derivative at each point numerically
+    #dqdt = np.gradient(q, dt) #Not needed as q is a constant 
+    dqdt = 0
+
+    for index, tk in enumerate(t_range[:-1]):
+        # Joining parameters into one list
+        args = [q, p0] + pars + [dqdt, dqdt]
+        pressure_values.append(step_rk4(f, pressure_values[index], dt, args))
+
+    return t_range, np.array(pressure_values)
 
 
 def plot_benchmark(display = False):
