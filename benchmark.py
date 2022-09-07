@@ -89,7 +89,7 @@ def plot_benchmark(display = False):
 
     # Naming axes and title and legends
     plt.xlabel("t")
-    plt.ylabel("relative error between analytical and numerical solution")
+    plt.ylabel("relative error between analytical and numerical")
     plt.title(
         "Error Analysis")
 
