@@ -175,15 +175,13 @@ def subsidence_model(t, p_change, d, Tm, Td):
     try:
         s = d * p_change * (1 - (1/(1+np.exp((t-Tm)/Td))))
     except ZeroDivisionError:
-        print("Td must be a positive number")
-        s= False
+        s = d * p_change  #Ingores exp component
         pass
 
     return s
 
 
 def solve_subsidence_model(f, t0, t1, dt, p, p0, pars):
-
     """Solves subsidence_model numerically.
 
     Parameters

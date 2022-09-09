@@ -3,10 +3,12 @@
 #
 # 	Functions:
 #       solve_pressure_ode_BENCHMARK: Solves pressure_ode numerically with preset parameters for benchmarking.
-#       plot_benchmark: Generates 3 plots 
+#       plot_benchmark_pressure: Generates 3 plots 
 #           1. Benchmark - Comparing Analytical and Numerical solutions
 #           2. Error Analysis - Relative Error between Analytical and Numberical solutions
-#           3. Convergence Analysis - Convergence test wtih varying time steps        
+#           3. Convergence Analysis - Convergence test wtih varying time steps
+#       solve_subsidence_model_BENCHMARK: Solves subsidence_model numerically with preset parameters for benchmarking.  
+#       plot_benchmark_subsidence: Benchmark of subsidence_model.      
 #########################################################################################
 
 #library imports
@@ -16,6 +18,9 @@ from matplotlib import pyplot as plt
 
 #file imports
 from model_solver import *
+
+#To display or not to display
+display = True
 
 
 def solve_pressure_ode_BENCHMARK(f, t0, t1, dt, p0, pars):
@@ -70,7 +75,7 @@ def solve_pressure_ode_BENCHMARK(f, t0, t1, dt, p0, pars):
     return t_range, np.array(pressure_values)
 
 
-def plot_benchmark(display = False):
+def plot_benchmark_pressure(display = False):
     ''' Compare analytical and numerical solutions.
 
         Parameters:
@@ -124,7 +129,7 @@ def plot_benchmark(display = False):
     if display:
         plt.show()
     else:
-        plt.savefig('Benchmark', dpi=300)
+        plt.savefig('Benchmark_pressure_ode', dpi=300)
 
 
     ########################
@@ -186,5 +191,96 @@ def plot_benchmark(display = False):
         plt.savefig('timestep_convergence', dpi=300)
 
 
+def solve_subsidence_model_BENCHMARK():
+    """Solves subsidence_model numerically with preset parameters for benchmarking.
+
+    Parameters
+    ----------
+    f : callable
+        calls subsidence_model()
+    t0 : float
+        start time of time domain
+    t1 : float
+        end time of time domain
+    dt : float
+        time step
+    p : array-like
+        pressure values over time range t0-t1
+    p0 : float
+        Ambient Pressure outside the reservoir
+    pars : array-like
+        parameters - [d, Tm, Td]
+
+    Returns
+    -------
+    t_range : array-like
+        Independent time variable vector.
+    s_values : array-like
+        Subsidence solution vector.
+    """
+    s_values = []
+    t_range = np.arange(0, 51, 1) 
+
+    d= 1
+    p0 = 50
+    p = np.arange(0, 51, 1)
+    pars= [0, 0, 0]
+
+    for index in range(len(t_range)):
+        p_change = p0 - p[index]
+        s = subsidence_model(t_range[index], p_change, *pars)
+        s_values.append(s)
+
+    return t_range, s_values
+
+
+def plot_benchmark_subsidence(display= False):
+    ''' Benchmark of subsidence_model
+
+        Parameters:
+        -----------
+        display : boolean, default False
+            switch to either display(TRUE) or save plots(FALSE)
+
+        Returns:
+        --------
+        Plot:
+            1. Benchmark 
+    '''
+
+    #Analytical Solution based of parameters
+    # X = -t + 50
+
+    #################
+    #PLOT - Benchmark
+    #################
+
+    f1, ax1 = plt.subplots(nrows=1, ncols=1)
+
+    #Analytical Solution
+    t_range = np.arange(0, 51, 1)
+    analytic_x = np.arange(50, -1, -1)
+    plt.plot(t_range, analytic_x, "-", color="red",
+             label="analytical solution")
+
+    #Numerical Solution
+    t_range, numeric_x = solve_subsidence_model_BENCHMARK()
+    plt.plot(t_range, analytic_x, "x", color="blue",
+             label="numerical solution")
+
+    # Naming axes and title and legends
+    plt.xlabel("t")
+    plt.ylabel("X")
+    plt.title(
+        "Benchmark of subsidence_model")
+    plt.legend(loc=1, prop={'size': 10})
+
+    if display:
+        plt.show()
+    else:
+        plt.savefig('Benchmark_subsidence_model', dpi=300)
+
+
 if __name__ == "__main__":
-    plot_benchmark()
+    plot_benchmark_pressure(display)
+    plot_benchmark_subsidence(display)

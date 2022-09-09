@@ -17,6 +17,9 @@ from matplotlib import pyplot as plt
 from callibration import *
 from process_data import *
 
+#To display or not to display
+display = True
+
 def forward_pressure(mass_rate_outcomes, display= False):
     """Performs future forecast for different future mass extraction rate outcomes on pressure model.
 
@@ -171,5 +174,5 @@ def forward_subsidence(mass_rate_outcomes, future_pressures, display=False):
 
 if __name__ == '__main__':
     mass_rate_outcomes = [0, 450, 900, 1250]
-    future_pressures = forward_pressure(mass_rate_outcomes)
-    future_subsidences = forward_subsidence(mass_rate_outcomes, future_pressures)
+    future_pressures = forward_pressure(mass_rate_outcomes, display)
+    future_subsidences = forward_subsidence(mass_rate_outcomes, future_pressures, display)

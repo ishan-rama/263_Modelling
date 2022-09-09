@@ -16,6 +16,9 @@ from scipy.optimize import curve_fit
 #file imports
 from model_solver import *
 
+#To display or not to display
+display = True
+
 
 def plot_pressure_model(display= False):
     """Calibrating parameters to fit the pressure data and plots best fitted model.
@@ -202,6 +205,6 @@ def plot_subsidence_model(display= False):
     return d_const, Tm_const, Td_const
 
 if __name__ == "__main__":
-    a, b, c = plot_pressure_model()
-    d, Tm, Td = plot_subsidence_model()
+    a, b, c = plot_pressure_model(display)
+    d, Tm, Td = plot_subsidence_model(display)
 
