@@ -1,5 +1,5 @@
 #########################################################################################
-# Function that produces benchmark plots for Model Verification.
+# benchmark.py - Function that produces benchmark plots for Model Verification.
 #
 # 	Functions:
 #       solve_pressure_ode_BENCHMARK: Solves pressure_ode numerically with preset parameters for benchmarking.
@@ -9,11 +9,13 @@
 #           3. Convergence Analysis - Convergence test wtih varying time steps        
 #########################################################################################
 
-#imports
+#library imports
 import warnings
 import numpy as np
 from matplotlib import pyplot as plt
-from ode_solver import *
+
+#file imports
+from model_solver import *
 
 
 def solve_pressure_ode_BENCHMARK(f, t0, t1, dt, p0, pars):
@@ -30,7 +32,7 @@ def solve_pressure_ode_BENCHMARK(f, t0, t1, dt, p0, pars):
         dt : float
             Time step
         p0 : float
-            Initial value of solution - Initial Pressure
+            Ambient Pressure outside the reservoir
         pars : array-like
             Strength parameters - [a, b, c]
 
@@ -182,3 +184,7 @@ def plot_benchmark(display = False):
         plt.show()
     else:
         plt.savefig('timestep_convergence', dpi=300)
+
+
+if __name__ == "__main__":
+    plot_benchmark()
