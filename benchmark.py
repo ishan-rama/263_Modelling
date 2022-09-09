@@ -19,7 +19,7 @@ from matplotlib import pyplot as plt
 #file imports
 from model_solver import *
 
-#To display or not to display
+#To display or not to display that is the question
 display = True
 
 

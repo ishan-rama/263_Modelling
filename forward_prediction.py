@@ -17,7 +17,7 @@ from matplotlib import pyplot as plt
 from callibration import *
 from process_data import *
 
-#To display or not to display
+#To display or not to display that is the question
 display = True
 
 def forward_pressure(mass_rate_outcomes, display= False):

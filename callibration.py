@@ -6,6 +6,8 @@
 #               plots best fitted model using curve_fit from scipy library.
 #       plot_subsidence_model: Calibrates parameters (d, Tm, Td) to fit the subsidence data and plots 
 #               best fitted model using curve_fit from scipy library.
+#       plot_pressure_misfit: Plots a misfit scatter plot of the best fitted pressure model against the data.
+#       plot_subsidence_misfit: Plots a misfit scatter plot of the best fitted subsidence model against the interpolated data.
 ###################################################################################################
 
 #library imports
@@ -17,7 +19,7 @@ from scipy.optimize import curve_fit
 #file imports
 from model_solver import *
 
-#To display or not to display
+#To display or not to display that is the question
 display = True
 
 
