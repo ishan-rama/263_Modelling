@@ -9,6 +9,7 @@
 ###################################################################################################
 
 #library imports
+from re import T
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.optimize import curve_fit
@@ -49,12 +50,12 @@ def plot_pressure_model(display= False):
     t1 = 2013 #End time
     dt = 0.01 #Time step
 
-    #Parameters - ad-hoc estimates
     p0 = 56.26 #Ambient Pressure
     p_init= 56.26 #Initial Pressure
-    a = 1.3e-3
-    b = 0.07
-    c = 0.006
+    #Parameters - ad-hoc estimates
+    a = 2.2e-03
+    b = 1.1e-01
+    c = 6.8e-03
     pars = [a, b, c]
     
     t_range = np.arange(t0, t1 + dt, dt) #Time range
@@ -204,7 +205,133 @@ def plot_subsidence_model(display= False):
 
     return d_const, Tm_const, Td_const
 
+
+def plot_pressure_misfit(a, b, c, display= False):
+    """Plots a misfit scatter plot of the best fitted pressure model against the data
+
+    Parameters:
+    ----------
+    a : float
+        Source/sink strength parameter
+    b : float
+        Recharge strength parameter
+    c : float
+        Slow-drainage strength parameter
+    display : boolean, optional
+        boolean to either display(TRUE) or save plots(FALSE), by default False
+    
+    Returns:
+    ------
+    Plot :
+        Plot of the misfit from the best fitted model and the data
+    """
+    t0 = 1953  # Start time
+    t1 = 2013  # End time
+    dt = 0.125  # Time step
+    p0 = 56.26 #Ambient Pressure
+    p_init= 56.26 #Initial Pressure 
+    pars = [a, b, c]
+
+    t_range = np.arange(t0, t1 + dt, dt) #Time range
+    #Load in mass extraction values interpolated at t_range times
+    t_data, q_data = load_mass_exraction_data()
+    q = interpolate_mass_extraction(t_data, q_data, t_range)
+    #Find the derivative at each point numerically
+    dqdt = np.gradient(q, dt)
+
+    #Pressure data
+    t_data, p_data = load_pressure_data()
+
+    #Best Model fitted
+    t_model, p_model_vals = solve_pressure_ode(pressure_ode, t0, t1, dt, q, dqdt, p_init, p0, pars)
+
+    misfit= [] 
+    t_model = list(t_model)
+    #Compute misfit array
+    for t_dat, p_dat in zip(t_data, p_data):
+        index = t_model.index(int(t_dat))
+        misfit.append(p_model_vals[index]- p_dat)
+
+    f1, ax1 = plt.subplots(nrows=1, ncols=1)    
+
+    plt.plot(t_data, misfit, "x", color="red", label="misfit")
+    plt.axhline(0.0, linestyle= "dotted" )
+
+    plt.xlabel('Time [years]')
+    plt.ylabel('Pressure misfit [bars]')
+    plt.title('Misfit of best fitted model against data.')
+    plt.legend()
+
+
+    if display:
+        plt.show()
+    else:
+        plt.savefig('pressure_model_misfit', dpi=300)
+        plt.close()
+
+
+def plot_subsidence_misfit(d, Tm, Td, display= False):
+    """Plots a misfit scatter plot of the best fitted subsidence model against the interpolated data
+
+    Parameters:
+    ----------
+    d : float
+        Lumped parameter
+    Tm : float
+        year when subsidence event reaches its peak
+    Td : float
+        diffusion time (years)
+    
+    Returns:
+    ------
+    Plot :
+        Plot of the misfit from the best fitted model and the interpolated data
+    """
+    t0 = 1952  # Start time
+    t1 = 2013  # End time
+    dt = 0.125  # Time step
+    p0 = 56.26  # Ambient Pressure outside the reservoir
+    pars = [d, Tm, Td]
+
+    t_range = np.arange(t0, t1 + dt, dt) #Time range
+    t_data, p_data = load_pressure_data()
+    p = interpolate_pressure_data(t_data, p_data, t_range)
+
+    #Interpolation of Subsidence data
+    t_s_data, s_data = load_subsidence_data()
+    year_range = np.arange(t0, t1 + dt, 1) #Time range
+    s_interp = interpolate_subsidence_data(t_s_data, s_data, year_range)
+
+    #Best Model fitted
+    t_model, s_fitted = solve_subsidence_model(t_range, t0, t1, dt, p, p0, pars)
+
+    misfit= [] 
+    t_model = list(t_model)
+    #Compute misfit array
+    for t_dat, s_dat in zip(t_s_data, s_data):
+        index = t_model.index(int(t_dat))
+        misfit.append(s_fitted[index]- s_dat)
+
+    f1, ax1 = plt.subplots(nrows=1, ncols=1)    
+
+    plt.plot(t_s_data, misfit, "x", color="red", label="misfit")
+    plt.axhline(0.0, linestyle= "dotted" )
+
+    plt.xlabel('Time [years]')
+    plt.ylabel('Subsidence misfit [bars]')
+    plt.title('Misfit of best fitted model against interpolated data.')
+    plt.legend()
+
+
+    if display:
+        plt.show()
+    else:
+        plt.savefig('subsidence_model_misfit', dpi=300)
+        plt.close()
+
+
 if __name__ == "__main__":
     a, b, c = plot_pressure_model(display)
     d, Tm, Td = plot_subsidence_model(display)
-
+    plot_pressure_misfit(a, b, c, display)
+    plot_subsidence_misfit(d, Tm, Td, display)
