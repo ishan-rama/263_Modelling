@@ -11,7 +11,6 @@
 
 #imports
 from decimal import DivisionByZero
-from re import T
 from scipy import interpolate
 import numpy as np
 
