@@ -10,6 +10,7 @@
 #########################################################################################
 
 #imports
+from decimal import DivisionByZero
 from re import T
 from scipy import interpolate
 import numpy as np
@@ -45,8 +46,8 @@ def pressure_ode(p, q, p0, a, b, c, dqdt):
 
         Examples:
         ---------
-        >>> ode_model(1, 2, 3, 4, 5, 6, 0)
-        10
+        >>> pressure_ode(1, 2, 3, 4, 5, 6, 0)
+        2
     '''
     return -a * q - b * (p - p0) - c * dqdt
 
@@ -63,8 +64,20 @@ def step_rk4(f, yk, h, args):
         value of solution at tk
     h : float
         step size
-    args : iterable
-        Optional parameters to pass into derivative function.
+    args : array-like
+        Parameter list -[q, p0, a, b, c, dqdt]
+        q : array-like
+            mass extraction rate over time range t0-t1
+        p0 : float
+            Ambient pressure outside the reservoir
+        a : float
+            Source/sink strength parameter
+        b : float
+            Recharge strength parameter
+        c : float
+            Slow-drainage strength parameter
+        dqdt : float
+            Rate of change of source/sink rate
 
     Returns
     -------
@@ -159,7 +172,12 @@ def subsidence_model(t, p_change, d, Tm, Td):
     s : float
         subsidence (meters)
     """
-    s = d * p_change * (1 - (1/(1+np.exp((t-Tm)/Td))))
+    try:
+        s = d * p_change * (1 - (1/(1+np.exp((t-Tm)/Td))))
+    except ZeroDivisionError:
+        print("Td must be a positive number")
+        s= False
+        pass
 
     return s
 
@@ -195,7 +213,7 @@ def solve_subsidence_model(f, t0, t1, dt, p, p0, pars):
     #Create solution arrays
     s_values = []
     t_range = np.arange(t0, t1 + dt, dt)
-    
+
     for index in range(len(t_range)):
         p_change = p0 - p[index] 
         s = subsidence_model(t_range[index], p_change, *pars)
