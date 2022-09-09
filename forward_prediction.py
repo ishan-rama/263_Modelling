@@ -5,6 +5,8 @@
 #   Functions:
 #       forward_pressure: Performs future forecast for different future mass extraction rate
 #               outcomes on pressure model.
+#       forward_subsidence: Performs future forecast for different future mass extraction rate
+#               outcomes on subsidence model.
 ###################################################################################################
 
 #imports 
@@ -94,6 +96,25 @@ def forward_pressure(mass_rate_outcomes, display= False):
 
 
 def forward_subsidence(mass_rate_outcomes, future_pressures, display=False):
+    """Performs future forecast for different future mass extraction rate outcomes on subsidence model.
+
+    Parameters
+    ----------
+    mass_rate_outcomes : array-like
+        a list of future mass extraction rates (integer values only!!!)
+    future_pressures : array-like
+        future_pressures : array-like
+        a list of lists of future pressure values for each mass extraction rate outcome
+    display : boolean, optional
+        boolean to either display(TRUE) or save plots(FALSE), by default False
+    
+    Returns
+    -------
+    future_subsidences : array-like
+        a list of lists of future subsidence values for each mass extraction rate outcome
+    Plot:
+        A plot of future subsidence forecasts based on different future mass extraction rates given as input
+    """
     t0 = 1952  # Start time domain
     t1 = 2013  # End time domain
     tf = 2050  # End future prediction time domain
@@ -146,7 +167,7 @@ def forward_subsidence(mass_rate_outcomes, future_pressures, display=False):
         plt.savefig('forward_subsidence_prediction', dpi=300)
         plt.close()
 
-    return future_pressures
+    return future_subsidences
 
 if __name__ == '__main__':
     mass_rate_outcomes = [0, 450, 900, 1250]
