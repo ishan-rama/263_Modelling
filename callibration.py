@@ -195,7 +195,7 @@ def plot_subsidence_model(display= False):
 
     plt.xlabel('Time [yr]')
     plt.ylabel('Subsidence [m]')
-    plt.title('Model Plot')
+    plt.title('d = %.7f, Tm = %.7f, Td = %.7f' %(d_const, Tm_const, Td_const))
     plt.legend()
     
     if display:
@@ -332,7 +332,7 @@ def plot_subsidence_misfit(d, Tm, Td, display= False):
 
 
 if __name__ == "__main__":
-    #a, b, c = plot_pressure_model(display)
+    a, b, c = plot_pressure_model(display)
     d, Tm, Td = plot_subsidence_model(display)
-    #plot_pressure_misfit(a, b, c, display)
-    #plot_subsidence_misfit(d, Tm, Td, display)
+    plot_pressure_misfit(a, b, c, display)
+    plot_subsidence_misfit(d, Tm, Td, display)

@@ -116,7 +116,7 @@ def pressure_grid_search():
 	c_best = 0.0080875
 
 	# number of values considered for each parameter within a given interval
-	N = 51
+	N = 11
 
 	# vectors of parameter values
 	a = np.linspace(a_best/2, a_best*1.5, N)
@@ -184,7 +184,7 @@ def subsidence_grid_search():
 	Td_best = 10.8336
 
 	# number of values considered for each parameter within a given interval
-	N = 51
+	N = 11
 	# vectors of parameter values
 	d = np.linspace(d_best/2, d_best*1.5, N)
 	Tm = np.linspace(Tm_best/2, Tm_best*1.5, N)
