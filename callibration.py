@@ -11,7 +11,6 @@
 ###################################################################################################
 
 #library imports
-from re import T
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.optimize import curve_fit
@@ -333,7 +332,7 @@ def plot_subsidence_misfit(d, Tm, Td, display= False):
 
 
 if __name__ == "__main__":
-    a, b, c = plot_pressure_model(display)
+    #a, b, c = plot_pressure_model(display)
     d, Tm, Td = plot_subsidence_model(display)
-    plot_pressure_misfit(a, b, c, display)
-    plot_subsidence_misfit(d, Tm, Td, display)
+    #plot_pressure_misfit(a, b, c, display)
+    #plot_subsidence_misfit(d, Tm, Td, display)

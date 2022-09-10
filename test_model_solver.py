@@ -52,4 +52,4 @@ def test_subsidence_model():
     result2 = subsidence_model(t, p_change, d, Tm, Td)
 
     assert result1 == 5
-    assert result2 == False
+    assert result2 == 50
