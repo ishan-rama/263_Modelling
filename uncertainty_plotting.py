@@ -1,5 +1,5 @@
 #########################################################################################
-# Function library for plotting uncertainty analysis 
+# uncertainty_plotting.py - Function library for plotting uncertainty analysis 
 #
 # 	Functions:
 #		plot_pressure_posterior3D: Plot posterior distribution for each parameter combination in pressure model.

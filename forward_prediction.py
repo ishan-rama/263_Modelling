@@ -430,8 +430,8 @@ if __name__ == '__main__':
     future_pressures_best = forward_pressure(mass_rate_outcomes, display)
     future_subsidences_best = forward_subsidence(mass_rate_outcomes, future_pressures_best, display)
 
-    #Sampled Parameters : 
-    N_samples = 20
+    #Sampled Parameters 
+    N_samples = 50
 
     #Prediction of pressure model
     a, b, c, P = pressure_grid_search()

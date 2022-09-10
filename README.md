@@ -12,10 +12,11 @@ model_solver.py - Function library for models, ode solvers.
 benchmark.py - Function that produces benchmark plots for Model Verification.
 callibration.py - Function library that callibrates parameters for pressure and subsidence models
 forward_prediction.py - Function library that performs forward predictions on pressure and subsidence models callibrated in calibration.py
+uncertainty.py - Perfoming uncertainty analysis on both pressure and subsidence models
+uncertainty_plotting.py - Function library for plotting uncertainty analysis 
 
 Test file:
 test_model_solver.py - Unit tests for model_solver.py library
-
 
 Setup
 Text data files are already supplied and processed by process_data.py
@@ -32,7 +33,6 @@ decimal - For Exception cases
 warnings - Ingore runtime warnings
 
 Usage
-
 To produce all plots across all files, run the main.py file.
 There is a display boolean variable that decides whether to save the plots
 or display them on your screen. By default display will be set to True, and so 
