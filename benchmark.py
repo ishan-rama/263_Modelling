@@ -20,7 +20,7 @@ from matplotlib import pyplot as plt
 from model_solver import *
 
 #To display or not to display that is the question
-display = True
+display = False
 
 
 def solve_pressure_ode_BENCHMARK(f, t0, t1, dt, p0, pars):
@@ -151,7 +151,7 @@ def plot_benchmark_pressure(display = False):
     plt.xlabel("t")
     plt.ylabel("relative error between analytical and numerical")
     plt.title(
-        "Error Analysis")
+        "Error Analysis_pressure")
 
     if display:
         plt.show()
@@ -188,7 +188,7 @@ def plot_benchmark_pressure(display = False):
     if display:
         plt.show()
     else:
-        plt.savefig('timestep_convergence', dpi=300)
+        plt.savefig('timestep_convergence_pressure_ode', dpi=300)
 
 
 def solve_subsidence_model_BENCHMARK():

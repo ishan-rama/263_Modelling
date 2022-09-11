@@ -86,7 +86,7 @@ def	observation_err_subsidence(display= False):
 		plt.plot([tpi,tpi],[pi-v,pi+v], 'r-', lw=0.5)
 	ax1.set_ylabel('subsidence [metres]');
 	ax1.set_xlim([None,2012])
-	plt.title("Observation error of pressure data by 0.5m variance")
+	plt.title("Observation error of subsidence data by 0.5m variance")
 	plt.legend()
 
 	if display:

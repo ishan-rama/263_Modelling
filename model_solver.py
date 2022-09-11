@@ -1,5 +1,5 @@
 #########################################################################################
-# model_solver.py - Function library for models, ode solvers.
+# model_solver.py - Function library for models and solvers.
 #
 # 	Functions:
 #		pressure_ode: Returns the derivative dp/dt for given parameters.

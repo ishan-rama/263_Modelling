@@ -1,6 +1,6 @@
 ###################################################################################################
 # forward_prediction.py - Function library that performs forward predictions on pressure and
-#                         subsidence models callibrated in calibration.py
+#                         subsidence models 
 #
 #   Functions:
 #       BEFORE UNCERTAINTY:
@@ -18,6 +18,7 @@
 #imports 
 import numpy as np
 from matplotlib import pyplot as plt
+import seaborn as sns
 
 #file imports
 from callibration import *
@@ -53,7 +54,7 @@ def forward_pressure(mass_rate_outcomes, display= False):
     p_init = 56.26 #Initial pressure
 
     #Getting callibrated parameters from fitted pressure_model
-    a, b, c = plot_pressure_model(False)
+    a, b, c = plot_pressure_model()
     pars = [a, b, c]
 
     t_current = np.arange(t0, t1+dt, dt) #Current time domain
@@ -131,7 +132,7 @@ def forward_subsidence(mass_rate_outcomes, future_pressures, display=False):
     p0 = 56.26 # Ambient Pressure
 
     #Getting callibrated parameters from fitted subsidence_model
-    d, Tm, Td = plot_subsidence_model(False)
+    d, Tm, Td = plot_subsidence_model()
     pars = [d, Tm, Td]
 
     t_current = np.arange(t0, t1+dt, dt) #Current time domain
@@ -331,7 +332,7 @@ def foward_subsidence_uncertainty(mass_rate_outcomes, future_pressures, subsiden
     # plot model across current time domain
     ax1.plot(t_current, s_interp, label="Interpolation")
 
-    plt.axhline(y= 15.2, color='black', linestyle='--', lw= 1.4)
+    plt.axhline(y= 15.2, color='black', linestyle='--', lw= 1.4, label= "threshold")
 
     ax1.set_xlabel('Time [year]')
     ax1.set_ylabel('Subsidence [metres]')
@@ -348,90 +349,13 @@ def foward_subsidence_uncertainty(mass_rate_outcomes, future_pressures, subsiden
     return future_subsidences
 
 
-def final_recommendation(future_subsidences, future_subsidences_best, display=False):
-    """Plots recommended outcome and pdf-histogram to support recommendation
-
-    Parameters
-    ----------
-    future_subsidences : array-like
-        a list of lists of lists of future subsidence values for each mass extraction rate outcome
-    future_subsidences_best : array-like
-        a list of lists of future subsidence values produced by best fitted model
-    display : boolean, optional
-        boolean to either display(TRUE) or save plots(FALSE), by default False
-    """
-    t0 = 1952  # Start time domain
-    t1 = 2013  # End time domain
-    tf = 2050  # End future prediction time domain
-    dt = 0.01  # Time step
-    p0 = 56.26  # Ambient Pressure
-
-    t_current = np.arange(t0, t1+dt, dt)  # Current time domain
-    t_future = np.arange(t1, tf+dt, dt)  # Future time domain
-
-    #Load in pressure and subsidence data and interpolate
-    t_p_data, p_data = load_pressure_data()
-    p_interp = interpolate_pressure_data(t_p_data, p_data, t_current)
-    t_s_data, s_data = load_subsidence_data()
-    s_interp = interpolate_subsidence_data(t_s_data, s_data, t_current)
-
-    #Get interpolation of p_data
-    p_interp = interpolate_pressure_data(t_p_data, p_data, t_current)
-
-    f1, ax1 = plt.subplots(1, 1)
-    f2, ax2 = plt.subplots(1, 1)
-
-    for s_model in future_subsidences[2]:
-        ax1.plot(t_future, s_model, 'k-', alpha = 0.4, lw= 0.6)
-    ax1.plot([], [], 'k-',
-             label=f"Mass extraction = 900kg/s")
-
-    #Plotting best model
-    d, Tm, Td = 0.700891, 1982.304, 10.83367
-    t_range, s_fitted = solve_subsidence_model(subsidence_model, t1, tf, dt, future_subsidences_best[2], p0, [d, Tm, Td])
-    ax1.plot(t_range, s_fitted, "r-", label="best model")
-
-    #Get subsidence vals from models at t=2030
-    s_2030 = []
-    for s_model in future_subsidences[-2]:
-        s_2030.append(s_model[-1])
-    
-    hist= np.hist(s_2030, normed=True, alpha = 0.75)
-    ax2.bar(hist)
-    ax2.set_xlabel('P(s(2030))')
-    ax2.set_ylabel('Subsidence at t=2030')
-    ax2.set_title("PDF of subsidence at t=2030")
-    ax2.axvline(x= future_subsidences_best[2][-1], color= "r", linestyle= '--', label= "best model")
-
-    # plot data point
-    ax1.plot(t_s_data, s_data, 'x', color='black', label="Observations")
-    # plot model across current time domain
-    ax1.plot(t_current, s_interp, label="Interpolation")
-
-    ax1.axhline(y=15.2, color='black', linestyle='--', lw=1.4)
-
-    ax1.set_xlabel('Time [year]')
-    ax1.set_ylabel('Subsidence [metres]')
-    ax1.set_title("Recommended forecast")
-    ax1.legend()
-
-    if display:
-        f1.show()
-        f2.show()
-    else:
-        f1.savefig('recommendation', dpi=300)
-        f2.savefig('histogram', dpi=300)
-        f1.close()
-        f2.close()
-
-
 if __name__ == '__main__':
     mass_rate_outcomes = [0, 450, 900, 1250]
     future_pressures_best = forward_pressure(mass_rate_outcomes, display)
     future_subsidences_best = forward_subsidence(mass_rate_outcomes, future_pressures_best, display)
 
     #Sampled Parameters 
-    N_samples = 50
+    N_samples = 100
 
     #Prediction of pressure model
     a, b, c, P = pressure_grid_search()
@@ -443,5 +367,4 @@ if __name__ == '__main__':
     subsidence_samples = construct_subsidence_samples(d, Tm, Td, P, N_samples)
     future_subsidences= foward_subsidence_uncertainty(mass_rate_outcomes, future_pressures, subsidence_samples, display)
 
-    #Plot to help with reccomendation - NoT WORKING YET!!!
-    #final_recommendation(future_subsidences, future_subsidences_best, display)
+

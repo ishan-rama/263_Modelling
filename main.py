@@ -7,6 +7,7 @@ from benchmark import *
 from callibration import *
 from uncertainty import *
 from forward_prediction import *
+from extra_model_use import *
 
 #To display or not to display that is the question
 display = True
@@ -16,6 +17,7 @@ benchmark = True
 callibration = True
 uncertainty = True
 prediction = True
+extra = True
 
 
 if __name__ == "__main__":
@@ -57,7 +59,7 @@ if __name__ == "__main__":
             mass_rate_outcomes, future_pressures_best, display)
 
         #Sampled Parameters 
-        N_samples = 50
+        N_samples = 100
 
         #Prediction of pressure model
         a, b, c, P = pressure_grid_search()
@@ -69,4 +71,21 @@ if __name__ == "__main__":
         d, Tm, Td, P = subsidence_grid_search()
         subsidence_samples = construct_subsidence_samples(d, Tm, Td, P, N_samples)
         future_subsidences = foward_subsidence_uncertainty(mass_rate_outcomes, future_pressures, subsidence_samples, display)
+    if extra:
+        if not prediction: #If inputs are not already generated
+            #GETTING INPUTS MAY TAKE A MINUTE OR TWO
+            #########################################################################
+            mass_rate_outcomes = [0, 450, 900, 1250]
+            future_pressures_best = forward_pressure(mass_rate_outcomes, display)
+            #future_subsidences_best = forward_subsidence(mass_rate_outcomes, future_pressures_best, display)
 
+            #Sampled Parameters
+            N_samples = 100
+
+            #Prediction of pressure model
+            a, b, c, P = pressure_grid_search()
+            pressure_samples = construct_pressure_samples(a, b, c, P, N_samples)
+            future_pressures = foward_pressure_uncertainty(
+            mass_rate_outcomes, pressure_samples, display)
+            ###########################################################################
+        inverse_modelling()

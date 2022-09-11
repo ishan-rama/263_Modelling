@@ -1,5 +1,5 @@
 #########################################################################################
-# test_model_solver.py - Unit tests for model_solver.py library
+# test_model_solver.py - Unit tests for model_solver.py function library
 #
 # 	Tested Functions:
 #		pressure_ode: Returns the derivative dp/dt for given parameters.
