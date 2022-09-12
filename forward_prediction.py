@@ -46,7 +46,7 @@ def forward_pressure(mass_rate_outcomes, display= False):
     Plot:
         A plot of future pressure forecasts based on different future mass extraction rates given as input
     """
-    t0 = 1952 #Start time domain
+    t0 = 1953 #Start time domain
     t1 = 2013 #End time domain
     tf = 2050 #End future prediction time domain
     dt = 0.01  #Time step
@@ -125,7 +125,7 @@ def forward_subsidence(mass_rate_outcomes, future_pressures, display=False):
     Plot:
         A plot of future subsidence forecasts based on different future mass extraction rates given as input
     """
-    t0 = 1952  # Start time domain
+    t0 = 1953  # Start time domain
     t1 = 2013  # End time domain
     tf = 2050  # End future prediction time domain
     dt = 0.01  # Time step
@@ -201,7 +201,7 @@ def foward_pressure_uncertainty(mass_rate_outcomes, pressure_samples, display= F
         A plot of future pressure forecasts based on different future mass extraction rates
             and different parameter samples given as input
     """
-    t0 = 1952  # Start time domain
+    t0 = 1953  # Start time domain
     t1 = 2013  # End time domain
     tf = 2050  # End future prediction time domain
     dt = 0.01  # Time step
@@ -284,7 +284,7 @@ def foward_subsidence_uncertainty(mass_rate_outcomes, future_pressures, subsiden
         A plot of future subsidence forecasts based on different future mass extraction rates
             and different parameter samples given as input
     """
-    t0 = 1952  # Start time domain
+    t0 = 1953  # Start time domain
     t1 = 2013  # End time domain
     tf = 2050  # End future prediction time domain
     dt = 0.01  # Time step
@@ -323,6 +323,7 @@ def foward_subsidence_uncertainty(mass_rate_outcomes, future_pressures, subsiden
     #plot future forecasts over only the future time domain t1-tf
     for i in range(len(mass_rate_outcomes)):
         for j in range(len(subsidence_samples)):
+            future_subsidences[i][j][0] = 15.1753 #Ground prediction to known data
             ax1.plot(t_future, future_subsidences[i][j], color[i], alpha=0.2, lw=0.25)
         ax1.plot([], [], color[i],label=f"Mass extraction = {mass_rate_outcomes[i]}kg/s")
 

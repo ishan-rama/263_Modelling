@@ -288,7 +288,7 @@ def plot_subsidence_misfit(d, Tm, Td, display= False):
     Plot :
         Plot of the misfit from the best fitted model and the interpolated data
     """
-    t0 = 1952  # Start time
+    t0 = 1953  # Start time
     t1 = 2013  # End time
     dt = 0.125  # Time step
     p0 = 56.26  # Ambient Pressure outside the reservoir
@@ -309,13 +309,13 @@ def plot_subsidence_misfit(d, Tm, Td, display= False):
     misfit= [] 
     t_model = list(t_model)
     #Compute misfit array
-    for t_dat, s_dat in zip(t_s_data, s_data):
+    for t_dat, s_dat in zip(t_s_data[1:], s_data[1:]):
         index = t_model.index(int(t_dat))
         misfit.append(s_fitted[index]- s_dat)
 
     f1, ax1 = plt.subplots(nrows=1, ncols=1)    
 
-    plt.plot(t_s_data, misfit, "x", color="red", label="misfit")
+    plt.plot(t_s_data[1:], misfit, "x", color="red", label="misfit")
     plt.axhline(0.0, linestyle= "dotted" )
 
     plt.xlabel('Time [years]')
