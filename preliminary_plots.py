@@ -38,6 +38,7 @@ def prelim_plots(display= False):
 
     ax1.plot(t_range, p_interp, color= "red", label= "PRESSURE")
     ax1.set_ylabel('PRESSURE (bar)', color= "red")
+    ax1.set_xlabel('TIME (years)')
 
     ax2 = ax1.twinx()
     ax2.plot(t_range, s_interp, color= "blue", label= "SUBSIDENCE")
@@ -45,7 +46,7 @@ def prelim_plots(display= False):
 
     ax3 = ax1.twinx()
     ax3.plot(t_range, q_interp, color = "black", label= "MASS EXTRACTION RATE")
-    ax3.spines['right'].set_position(('outward', 40))
+    ax3.spines['right'].set_position(('outward', 35))
     ax3.set_ylabel('MASS EXTRACTION RATE (kg/s)', color="black")
 
     ax1.tick_params(axis= 'y', colors= "red")
@@ -57,7 +58,7 @@ def prelim_plots(display= False):
     ax3.spines['left'].set_color("red")
 
     plt.title("MASS EXTRACTION, PRESSURE and SUBSIDENCE at WAIRAKEI OVER TIME")
-    fig.legend(loc = 'upper center', frameon = True)
+    fig.legend()
 
     if display:
         plt.show()
