@@ -140,7 +140,7 @@ def plot_benchmark():
         "Benchmark comparison between analytical solution and numerical solution")
     plt.legend(loc=1, prop={'size': 10})
 
-    save_figure = 1
+    save_figure = 0
     if not save_figure:
         plt.show()
     else:
@@ -167,7 +167,7 @@ def plot_benchmark():
     plt.title(
         "Error Analysis")
 
-    save_figure = 1
+    save_figure = 0
     if not save_figure:
         plt.show()
     else:
@@ -197,7 +197,7 @@ def plot_benchmark():
     plt.title(
         "timestep convergence")
 
-    save_figure = 1
+    save_figure = 0
     if not save_figure:
         plt.show()
     else:
