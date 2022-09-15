@@ -40,14 +40,15 @@ def inverse_modelling(pressure_samples, display):
     mu = stat.mean(a_samples)
     sd = stat.stdev(a_samples)
 
-    confint_90 = 0.9*(sd/(np.sqrt(len(a_samples))))
+    #z-score = 1.65 for 90% confidence interval
+    confint_90 = 1.65*(sd/(np.sqrt(len(a_samples))))
 
     print(mu)
     print(confint_90)
 
     ax1.set_xlabel('a_value')
     ax1.set_ylabel('Probability density of parameter a value')
-    ax1.set_title("PDF of parameter 'a' value with mean_a = {mu}")
+    ax1.set_title(f"PDF of parameter 'a' value with mean_a = {mu}")
     ax1.axvline(x= 0.0014389, color="r", linestyle='--', label="best fitted value a= 0.0014389")
     ax1.axvline(x=mu+confint_90, color="grey", linestyle='--',
                 label="90%/ confidence interval")
