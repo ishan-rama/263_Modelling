@@ -1,5 +1,7 @@
 #########################################################################################################
 # main.py - Main File that generates all plots, Set display to False if you would like to save the plots.
+# -------------------------------------------------------------------------------------------------------
+#  NOTE: USUALLLY TAKES AROUND 3-4 minutes to produce all plots
 #########################################################################################################
 
 #file imports
@@ -24,7 +26,7 @@ extra = True
 
 if __name__ == "__main__":
     if prelim_plot:
-        prelim_plots(display)
+        prelim_plots(display) #Exploratory Plot
     if benchmark:
         #Benchmark
         plot_benchmark_pressure(display) 
@@ -65,13 +67,13 @@ if __name__ == "__main__":
         #Sampled Parameters 
         N_samples = 100
 
-        #Prediction of pressure model
+        #Prediction of pressure model with uncertainty
         a, b, c, P = pressure_grid_search()
         pressure_samples = construct_pressure_samples(a, b, c, P, N_samples)
         future_pressures = foward_pressure_uncertainty(
             mass_rate_outcomes, pressure_samples, display)
 
-        #Prediction of subsidence model
+        #Prediction of subsidence model with uncertainty
         d, Tm, Td, P = subsidence_grid_search()
         subsidence_samples = construct_subsidence_samples(d, Tm, Td, P, N_samples)
         future_subsidences = foward_subsidence_uncertainty(mass_rate_outcomes, future_pressures, subsidence_samples, display)
@@ -92,4 +94,6 @@ if __name__ == "__main__":
             future_pressures = foward_pressure_uncertainty(
             mass_rate_outcomes, pressure_samples, display)
             ###########################################################################
-        inverse_modelling()
+        inverse_modelling(pressure_samples, display)
+    
+    print("All plots have been generated. Thank you!!! :)")
