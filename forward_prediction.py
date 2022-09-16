@@ -351,7 +351,7 @@ def foward_subsidence_uncertainty(mass_rate_outcomes, future_pressures, subsiden
     return t_future, future_subsidences
 
 
-#Use for report writing, getting confidence intervals
+#Helper function for report writing, getting confidence intervals
 def subsidence_confidence_intveral(t_future, future_subsidences):
     """Function for getting subsidence confidence intervals
 
@@ -391,8 +391,8 @@ def subsidence_confidence_intveral(t_future, future_subsidences):
 
 if __name__ == '__main__':
     mass_rate_outcomes = [0, 450, 900, 1250]
-    #future_pressures_best = forward_pressure(mass_rate_outcomes, display)
-    #future_subsidences_best = forward_subsidence(mass_rate_outcomes, future_pressures_best, display)
+    future_pressures_best = forward_pressure(mass_rate_outcomes, display)
+    future_subsidences_best = forward_subsidence(mass_rate_outcomes, future_pressures_best, display)
 
     #Sampled Parameters 
     N_samples = 100
