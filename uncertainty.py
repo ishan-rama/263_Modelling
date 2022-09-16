@@ -25,7 +25,7 @@ from model_solver import *
 from uncertainty_plotting import *
 
 #To display or not to display that is the question
-display = False
+display = True
 
 
 def	observation_err_pressure(display= False):
@@ -185,6 +185,7 @@ def subsidence_grid_search():
 
 	# number of values considered for each parameter within a given interval
 	N = 51
+
 	# vectors of parameter values
 	d = np.linspace(d_best/2, d_best*1.5, N)
 	Tm = np.linspace(Tm_best/2, Tm_best*1.5, N)

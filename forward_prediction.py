@@ -18,7 +18,7 @@
 #imports 
 import numpy as np
 from matplotlib import pyplot as plt
-import seaborn as sns
+import statistics as stat
 
 #file imports
 from callibration import *
@@ -247,6 +247,7 @@ def foward_pressure_uncertainty(mass_rate_outcomes, pressure_samples, display= F
     # plot model across current time domain
     ax1.plot(t_current, p_interp, label="Interpolation")
 
+
     ax1.set_xlabel('Time [year]')
     ax1.set_ylabel('Pressure [bars]')
     ax1.set_title("Uncertainty forecast for pressure")
@@ -347,13 +348,51 @@ def foward_subsidence_uncertainty(mass_rate_outcomes, future_pressures, subsiden
         plt.close()
 
 
-    return future_subsidences
+    return t_future, future_subsidences
+
+
+#Use for report writing, getting confidence intervals
+def subsidence_confidence_intveral(t_future, future_subsidences):
+    """Function for getting subsidence confidence intervals
+
+    Parameters
+    ----------
+    t_future : array-like
+        array of future time periods where predictions are made
+    future_subsidences : array-like
+        array of future subsidence values at time periods in t_future
+    """
+    subsidence_2030 =  [[] for _ in range(4)]
+    for i in range(4):
+        for future_subsidence in future_subsidences[i]:
+            smallest = 1
+            for j, t in enumerate(t_future):
+                if (abs(t - 2030)) <= smallest:
+                    smallest_index = j
+                    smallest = abs(t- 2030)
+            subsidence_2030[i].append(future_subsidence[smallest_index])
+    
+    print(t_future[smallest_index])
+    
+    m =mass_rate_outcomes = [0, 450, 900, 1250]
+    index = 0
+    for s in subsidence_2030:
+        #Calculating standard deviation and mean
+        mu = stat.mean(s)
+        sd = stat.stdev(s)
+
+        #z-score = 1.96 for 95% confidence interval
+        confint_90 = 1.96*(sd/(np.sqrt(len(s))))
+
+        print(str(m[index]) + " " + str(mu) + " " + str(sd) + " " + str(confint_90))
+        index += 1
+                
 
 
 if __name__ == '__main__':
     mass_rate_outcomes = [0, 450, 900, 1250]
-    future_pressures_best = forward_pressure(mass_rate_outcomes, display)
-    future_subsidences_best = forward_subsidence(mass_rate_outcomes, future_pressures_best, display)
+    #future_pressures_best = forward_pressure(mass_rate_outcomes, display)
+    #future_subsidences_best = forward_subsidence(mass_rate_outcomes, future_pressures_best, display)
 
     #Sampled Parameters 
     N_samples = 100
@@ -366,6 +405,7 @@ if __name__ == '__main__':
     #Prediction of subsidence model
     d, Tm, Td, P = subsidence_grid_search()
     subsidence_samples = construct_subsidence_samples(d, Tm, Td, P, N_samples)
-    future_subsidences= foward_subsidence_uncertainty(mass_rate_outcomes, future_pressures, subsidence_samples, display)
+    t_future, future_subsidences= foward_subsidence_uncertainty(mass_rate_outcomes, future_pressures, subsidence_samples, display)
 
-
+    #Get confidence intervals printed to stdout for report writing
+    #subsidence_confidence_intveral(t_future, future_subsidences)

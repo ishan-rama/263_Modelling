@@ -212,7 +212,7 @@ def solve_subsidence_model(f, t0, t1, dt, p, p0, pars):
     t_range = np.arange(t0, t1 + dt, dt)
 
     for index in range(len(t_range)):
-        p_change = p0 - p[index] 
+        p_change = p0 - p[index] #Calculating pressure change with fixed parameter p0
         s = subsidence_model(t_range[index], p_change, *pars)
         s_values.append(s)
    

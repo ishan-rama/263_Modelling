@@ -20,7 +20,7 @@ from matplotlib import pyplot as plt
 from model_solver import *
 
 #To display or not to display that is the question
-display = False
+display = True
 
 
 def solve_pressure_ode_BENCHMARK(f, t0, t1, dt, p0, pars):
@@ -122,7 +122,7 @@ def plot_benchmark_pressure(display = False):
 
     # Naming axes and title and legends
     plt.xlabel("t")
-    plt.ylabel("X")
+    plt.ylabel("P")
     plt.title("Benchmark comparison between analytical solution and numerical solution")
     plt.legend(loc=1, prop={'size': 10})
 
@@ -151,7 +151,7 @@ def plot_benchmark_pressure(display = False):
     plt.xlabel("t")
     plt.ylabel("relative error between analytical and numerical")
     plt.title(
-        "Error Analysis_pressure")
+        "Error Analysis for pressure benchmark")
 
     if display:
         plt.show()
@@ -175,7 +175,7 @@ def plot_benchmark_pressure(display = False):
             pressure_ode, t0, t1, step, p0, pars)
         x_at_ten.append(numeric_x[-1])  # Append last value (t=10)
 
-    plt.plot(inverse_step_size, x_at_ten, "x")
+    plt.plot(inverse_step_size, x_at_ten, "x", label= "Numerical values")
 
     # Naming axes and title and legends
     plt.xlabel("1/step")

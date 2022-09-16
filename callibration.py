@@ -174,7 +174,7 @@ def plot_subsidence_model(display= False):
         t0 = 1952
         t1 = 2013
         dt = 0.5
-        p0 = 56.18127 #from pressure model fitted parameter
+        p0 = 56.26  # from pressure model fitted parameter
         t_data, p_data = load_pressure_data()
         p = interpolate_pressure_data(t_data, p_data, t_range)
         t, s = solve_subsidence_model(subsidence_model, t0, t1, dt, p, p0, list(pars))
@@ -256,7 +256,7 @@ def plot_pressure_misfit(a, b, c, display= False):
     f1, ax1 = plt.subplots(nrows=1, ncols=1)    
 
     plt.plot(t_data, misfit, "x", color="red", label="misfit")
-    plt.axhline(0.0, linestyle= "dotted" )
+    plt.axhline(0.0, linestyle= "dotted", label = "Exact fit line" )
 
     plt.xlabel('Time [years]')
     plt.ylabel('Pressure misfit [bars]')

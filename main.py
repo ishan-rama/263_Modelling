@@ -3,6 +3,7 @@
 #########################################################################################################
 
 #file imports
+from preliminary_plots import *
 from benchmark import *
 from callibration import *
 from uncertainty import *
@@ -13,6 +14,7 @@ from extra_model_use import *
 display = True
 
 #Switches to run certain functions from certain files
+prelim_plot= True
 benchmark = True
 callibration = True
 uncertainty = True
@@ -21,6 +23,8 @@ extra = True
 
 
 if __name__ == "__main__":
+    if prelim_plot:
+        prelim_plots(display)
     if benchmark:
         #Benchmark
         plot_benchmark_pressure(display) 
@@ -54,9 +58,9 @@ if __name__ == "__main__":
         subsidence_model_ensemble(subsidence_samples, display)
     if prediction:
         mass_rate_outcomes = [0, 450, 900, 1250]
+        #Best fitted models
         future_pressures_best = forward_pressure(mass_rate_outcomes, display)
-        future_subsidences_best = forward_subsidence(
-            mass_rate_outcomes, future_pressures_best, display)
+        future_subsidences_best = forward_subsidence(mass_rate_outcomes, future_pressures_best, display)
 
         #Sampled Parameters 
         N_samples = 100

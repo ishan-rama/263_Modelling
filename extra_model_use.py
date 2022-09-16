@@ -15,7 +15,7 @@ import statistics as stat
 from forward_prediction import *
 
 #To display or not to display that is the question
-display = False
+display = True
 
 
 def inverse_modelling(pressure_samples, display):
@@ -34,7 +34,7 @@ def inverse_modelling(pressure_samples, display):
     a_samples = [sample[0] for sample in pressure_samples]
 
     bins = np.linspace(np.min(a_samples)*0.999, np.max(a_samples)
-                       * 1.001, int(np.sqrt(len(a_samples)))+1)
+                       * 1.001, int(np.sqrt(len(a_samples)))+2)
     ax1.hist(a_samples, bins, density= True, stacked=True)
     #Calculating standard deviation and mean
     mu = stat.mean(a_samples)
@@ -42,7 +42,7 @@ def inverse_modelling(pressure_samples, display):
 
     #z-score = 1.65 for 90% confidence interval
     confint_90 = 1.65*(sd/(np.sqrt(len(a_samples))))
-
+    print(bins)
     print(mu)
     print(confint_90)
 
@@ -51,7 +51,7 @@ def inverse_modelling(pressure_samples, display):
     ax1.set_title(f"PDF of parameter 'a' value with mean_a = {mu}")
     ax1.axvline(x= 0.0014389, color="r", linestyle='--', label="best fitted value a= 0.0014389")
     ax1.axvline(x=mu+confint_90, color="grey", linestyle='--',
-                label="90%/ confidence interval")
+                label="90% confidence interval")
     ax1.axvline(x=mu-confint_90, color="grey", linestyle='--')
     ax1.legend()
 
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     #future_subsidences_best = forward_subsidence(mass_rate_outcomes, future_pressures_best, display)
 
     #Sampled Parameters
-    N_samples = 100
+    N_samples = 200
 
     #Prediction of pressure model
     a, b, c, P = pressure_grid_search()
@@ -78,5 +78,5 @@ if __name__ == '__main__':
     ###########################################################################
     
     #Plot for inverse_modelling of parameter a
-    a = inverse_modelling(pressure_samples, False)
+    a = inverse_modelling(pressure_samples, display)
     
